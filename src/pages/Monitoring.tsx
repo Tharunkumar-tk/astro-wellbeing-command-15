@@ -73,13 +73,13 @@ const Monitoring = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Live Monitoring</h1>
-            <p className="text-muted-foreground">Real-time crew biometric and behavioral analysis</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Live Monitoring</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Real-time crew biometric and behavioral analysis</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="status-indicator nominal"></div>
@@ -90,44 +90,44 @@ const Monitoring = () => {
         {/* Alert Banner */}
         {fatigueIndex > 60 && (
           <Card className="border-warning bg-warning/5">
-            <CardContent className="p-4">
+            <CardContent className="p-3 md:p-4">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-warning" />
                 <div>
                   <p className="font-medium text-warning">Fatigue Level Alert</p>
-                  <p className="text-sm text-muted-foreground">Elevated fatigue detected - recommend rest break and hydration</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Elevated fatigue detected - recommend rest break and hydration</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Video Feed */}
           <Card className="data-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Video className="h-5 w-5" />
-                Video Feed Analysis
+                <span className="text-base md:text-lg">Video Feed Analysis</span>
               </CardTitle>
-              <CardDescription>Real-time visual monitoring and behavioral analysis</CardDescription>
+              <CardDescription className="text-sm">Real-time visual monitoring and behavioral analysis</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video bg-muted/20 rounded-lg border-2 border-dashed border-border flex items-center justify-center">
+              <div className="aspect-video bg-muted/20 rounded-lg border-2 border-dashed border-border flex items-center justify-center mb-4">
                 <div className="text-center">
-                  <Video className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Camera Feed Placeholder</p>
+                  <Video className="h-8 md:h-12 w-8 md:w-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-xs md:text-sm text-muted-foreground">Camera Feed Placeholder</p>
                   <p className="text-xs text-muted-foreground mt-1">Connection: Station Cam 01</p>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Posture Analysis</p>
-                  <p className="font-medium text-nominal">Good</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Posture Analysis</p>
+                  <p className="text-sm md:text-base font-medium text-nominal">Good</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Activity Level</p>
-                  <p className="font-medium text-primary">Moderate</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Activity Level</p>
+                  <p className="text-sm md:text-base font-medium text-primary">Moderate</p>
                 </div>
               </div>
             </CardContent>
@@ -138,36 +138,35 @@ const Monitoring = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mic className="h-5 w-5" />
-                Voice Analysis
+                <span className="text-base md:text-lg">Voice Analysis</span>
               </CardTitle>
-              <CardDescription>Speech pattern and stress indicator analysis</CardDescription>
+              <CardDescription className="text-sm">Speech pattern and stress indicator analysis</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="p-4 bg-muted/10 rounded-lg border">
+              <div className="space-y-3 md:space-y-4">
+                <div className="p-3 md:p-4 bg-muted/10 rounded-lg border">
                   <VoiceVisualizer />
                 </div>
                 
-                <div className="flex items-center justify-center gap-4">
+                <div className="flex items-center justify-center">
                   <Button
                     variant={isRecording ? "destructive" : "default"}
-                    size="sm"
+                    className="min-h-[44px] text-sm"
                     onClick={() => setIsRecording(!isRecording)}
-                    className="flex items-center gap-2"
                   >
                     {isRecording ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    {isRecording ? 'Stop Recording' : 'Start Recording'}
+                    <span className="ml-2">{isRecording ? 'Stop Recording' : 'Start Recording'}</span>
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="grid grid-cols-2 gap-3 md:gap-4 text-center">
                   <div>
-                    <p className="text-sm text-muted-foreground">Speech Rate</p>
-                    <p className="font-medium text-foreground">Normal</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Speech Rate</p>
+                    <p className="text-sm md:text-base font-medium text-foreground">Normal</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Voice Stress</p>
-                    <p className="font-medium text-nominal">Low</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Voice Stress</p>
+                    <p className="text-sm md:text-base font-medium text-nominal">Low</p>
                   </div>
                 </div>
               </div>
@@ -180,24 +179,24 @@ const Monitoring = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
-              Live Biometric Data
+              <span className="text-lg md:text-xl">Live Biometric Data</span>
             </CardTitle>
-            <CardDescription>Real-time physiological monitoring</CardDescription>
+            <CardDescription className="text-sm">Real-time physiological monitoring</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {/* Heart Rate */}
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Heart className="h-4 w-4 text-red-500" />
-                    <span className="text-sm font-medium">Heart Rate</span>
+                    <span className="text-xs md:text-sm font-medium">Heart Rate</span>
                   </div>
                   <Badge variant="outline" className={`text-${getStatusColor(heartRate, {low: 80, high: 90})}`}>
                     {getStatusText(heartRate, {low: 80, high: 90})}
                   </Badge>
                 </div>
-                <div className="text-3xl font-bold text-foreground">{heartRate} <span className="text-lg text-muted-foreground">bpm</span></div>
+                <div className="text-2xl md:text-3xl font-bold text-foreground">{heartRate} <span className="text-sm md:text-lg text-muted-foreground">bpm</span></div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div 
                     className="bg-red-500 h-2 rounded-full transition-all duration-1000"
@@ -207,17 +206,17 @@ const Monitoring = () => {
               </div>
 
               {/* Stress Level */}
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Brain className="h-4 w-4 text-yellow-500" />
-                    <span className="text-sm font-medium">Stress Level</span>
+                    <span className="text-xs md:text-sm font-medium">Stress Level</span>
                   </div>
                   <Badge variant="outline" className={`text-${getStatusColor(stressLevel, {low: 30, high: 60})}`}>
                     {getStatusText(stressLevel, {low: 30, high: 60})}
                   </Badge>
                 </div>
-                <div className="text-3xl font-bold text-foreground">{stressLevel}<span className="text-lg text-muted-foreground">%</span></div>
+                <div className="text-2xl md:text-3xl font-bold text-foreground">{stressLevel}<span className="text-sm md:text-lg text-muted-foreground">%</span></div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div 
                     className="bg-yellow-500 h-2 rounded-full transition-all duration-1000"
@@ -227,17 +226,17 @@ const Monitoring = () => {
               </div>
 
               {/* Fatigue Index */}
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Activity className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm font-medium">Fatigue Index</span>
+                    <span className="text-xs md:text-sm font-medium">Fatigue Index</span>
                   </div>
                   <Badge variant="outline" className={`text-${getStatusColor(fatigueIndex, {low: 40, high: 70})}`}>
                     {getStatusText(fatigueIndex, {low: 40, high: 70})}
                   </Badge>
                 </div>
-                <div className="text-3xl font-bold text-foreground">{fatigueIndex}<span className="text-lg text-muted-foreground">%</span></div>
+                <div className="text-2xl md:text-3xl font-bold text-foreground">{fatigueIndex}<span className="text-sm md:text-lg text-muted-foreground">%</span></div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div 
                     className="bg-blue-500 h-2 rounded-full transition-all duration-1000"

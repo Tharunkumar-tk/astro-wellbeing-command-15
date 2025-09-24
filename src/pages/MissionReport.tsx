@@ -120,34 +120,35 @@ const MissionReport = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Mission Report</h1>
-            <p className="text-muted-foreground">Daily operational status and activity logs</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Mission Report</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Daily operational status and activity logs</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Mission Day</p>
-              <p className="text-2xl font-bold text-primary">124</p>
+          <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="text-left sm:text-right">
+              <p className="text-xs md:text-sm text-muted-foreground">Mission Day</p>
+              <p className="text-xl md:text-2xl font-bold text-primary">124</p>
             </div>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 min-h-[44px]">
               <Download className="h-4 w-4" />
-              Export Log
+              <span className="hidden sm:inline">Export Log</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
         </div>
 
         {/* Critical Alerts */}
         <Card className="border-caution bg-caution/5">
-          <CardContent className="p-4">
+          <CardContent className="p-3 md:p-4">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-caution" />
               <div>
-                <p className="font-medium text-caution">Communication System Alert</p>
-                <p className="text-sm text-muted-foreground">Module 3 communication array showing degraded performance - 78.3% efficiency</p>
+                <p className="text-sm md:text-base font-medium text-caution">Communication System Alert</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Module 3 communication array showing degraded performance - 78.3% efficiency</p>
               </div>
               <Badge variant="outline" className="text-caution border-caution ml-auto">
                 Under Review
@@ -156,32 +157,32 @@ const MissionReport = () => {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* System Status */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Rocket className="h-5 w-5" />
-                System Status
+                <span className="text-base md:text-lg">System Status</span>
               </CardTitle>
-              <CardDescription>Real-time station systems monitoring</CardDescription>
+              <CardDescription className="text-sm">Real-time station systems monitoring</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {systemStatus.map((system, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-card/50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-card/50 rounded-lg gap-3">
                     <div className="flex items-center gap-3">
                       <system.icon className={`h-4 w-4 ${
                         system.status === 'nominal' ? 'text-nominal' : 
                         system.status === 'caution' ? 'text-caution' : 'text-critical'
                       }`} />
                       <div>
-                        <p className="font-medium text-foreground">{system.system}</p>
+                        <p className="text-sm md:text-base font-medium text-foreground">{system.system}</p>
                         <p className="text-xs text-muted-foreground">Last check: {system.lastCheck}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-foreground">{system.value}</p>
+                      <p className="text-sm md:text-base font-bold text-foreground">{system.value}</p>
                   <Badge variant="outline" className={getStatusColor(system.status)}>
                     {system.status}
                   </Badge>
@@ -197,18 +198,18 @@ const MissionReport = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5" />
-                Supplies & Resources
+                <span className="text-base md:text-lg">Supplies & Resources</span>
               </CardTitle>
-              <CardDescription>Current inventory and consumption rates</CardDescription>
+              <CardDescription className="text-sm">Current inventory and consumption rates</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {supplies.map((supply, index) => (
                   <div key={index} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{supply.item}</span>
+                      <span className="text-xs md:text-sm font-medium">{supply.item}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{supply.current}/{supply.capacity} {supply.unit}</span>
+                        <span className="text-xs md:text-sm">{supply.current}/{supply.capacity} {supply.unit}</span>
                     <Badge 
                       variant="outline" 
                       className={getStatusColor(supply.status)}
@@ -238,34 +239,34 @@ const MissionReport = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Dumbbell className="h-5 w-5" />
-              Exercise & Health Logs
+              <span className="text-lg md:text-xl">Exercise & Health Logs</span>
             </CardTitle>
-            <CardDescription>Daily physical fitness and health maintenance activities</CardDescription>
+            <CardDescription className="text-sm">Daily physical fitness and health maintenance activities</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs md:text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left p-2 text-muted-foreground">Session</th>
-                    <th className="text-left p-2 text-muted-foreground">Duration</th>
-                    <th className="text-left p-2 text-muted-foreground">Crew Member</th>
-                    <th className="text-left p-2 text-muted-foreground">Intensity</th>
-                    <th className="text-left p-2 text-muted-foreground">Status</th>
+                    <th className="text-left p-1 md:p-2 text-muted-foreground">Session</th>
+                    <th className="text-left p-1 md:p-2 text-muted-foreground">Duration</th>
+                    <th className="text-left p-1 md:p-2 text-muted-foreground hidden sm:table-cell">Crew Member</th>
+                    <th className="text-left p-1 md:p-2 text-muted-foreground">Intensity</th>
+                    <th className="text-left p-1 md:p-2 text-muted-foreground">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {exerciseLogs.map((log, index) => (
                     <tr key={index} className="border-b border-border/50">
-                      <td className="p-2 font-medium">{log.session}</td>
-                      <td className="p-2">{log.duration}</td>
-                      <td className="p-2">{log.crew}</td>
-                      <td className="p-2">
+                      <td className="p-1 md:p-2 font-medium">{log.session}</td>
+                      <td className="p-1 md:p-2">{log.duration}</td>
+                      <td className="p-1 md:p-2 hidden sm:table-cell">{log.crew}</td>
+                      <td className="p-1 md:p-2">
                       <Badge variant="outline">
                         {log.intensity}
                       </Badge>
                       </td>
-                      <td className="p-2">
+                      <td className="p-1 md:p-2">
                         <Badge 
                           variant="outline" 
                           className={getStatusColor(log.compliance === 'Complete' ? 'completed' : 'caution')}
@@ -286,31 +287,33 @@ const MissionReport = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              Daily Mission Timeline
+              <span className="text-lg md:text-xl">Daily Mission Timeline</span>
             </CardTitle>
-            <CardDescription>Chronological log of today's activities and events</CardDescription>
+            <CardDescription className="text-sm">Chronological log of today's activities and events</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {missionEvents.map((event, index) => {
                 const EventIcon = getEventIcon(event.type);
                 return (
-                  <div key={index} className="flex items-start gap-4 p-4 bg-card/30 rounded-lg border-l-4 border-l-primary">
-                    <div className="flex items-center gap-2 min-w-0">
+                  <div key={index} className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-card/30 rounded-lg border-l-4 border-l-primary">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0">
                       <EventIcon className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm font-mono text-muted-foreground">{event.time}</span>
+                      <span className="text-xs md:text-sm font-mono text-muted-foreground">{event.time}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-foreground">{event.title}</h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                        <h4 className="text-sm md:text-base font-medium text-foreground">{event.title}</h4>
+                        <div className="flex items-center gap-2">
                         <Badge variant="outline" className={getStatusColor(event.status)}>
                           {event.status}
                         </Badge>
                         <Badge variant="outline">
                           {event.priority}
                         </Badge>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-1">{event.description}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground mb-1 leading-relaxed">{event.description}</p>
                       <p className="text-xs text-muted-foreground">Crew: {event.crew}</p>
                     </div>
                   </div>

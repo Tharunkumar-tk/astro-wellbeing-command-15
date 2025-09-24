@@ -22,7 +22,7 @@ const Login = () => {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 relative"
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(rgba(34, 34, 47, 0.85), rgba(34, 34, 47, 0.85)), url(${spaceStationBg})`,
         backgroundSize: 'cover',
@@ -30,18 +30,18 @@ const Login = () => {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-sm md:max-w-md space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-3 md:space-y-4">
           <div className="flex justify-center">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Satellite className="h-12 w-12 text-primary" />
+            <div className="p-2 md:p-3 bg-primary/10 rounded-full">
+              <Satellite className="h-10 w-10 md:h-12 md:w-12 text-primary" />
             </div>
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">AstroBot</h1>
-            <p className="text-lg text-muted-foreground">Bhartiya Antariksh Station</p>
-            <p className="text-sm text-muted-foreground">Crew Well-being AI Assistant</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">AstroBot</h1>
+            <p className="text-base md:text-lg text-muted-foreground">Bhartiya Antariksh Station</p>
+            <p className="text-xs md:text-sm text-muted-foreground">Crew Well-being AI Assistant</p>
           </div>
         </div>
 
@@ -50,14 +50,14 @@ const Login = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
-              Secure Access
+              <span className="text-lg md:text-xl">Secure Access</span>
             </CardTitle>
             <CardDescription>
               Enter your astronaut credentials to access mission control
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-3 md:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="astronaut-id">Astronaut ID</Label>
                 <Input
@@ -66,7 +66,7 @@ const Login = () => {
                   placeholder="e.g. AST-001"
                   value={astronautId}
                   onChange={(e) => setAstronautId(e.target.value)}
-                  className="bg-input border-border"
+                  className="bg-input border-border min-h-[44px] text-base"
                 />
               </div>
               
@@ -78,13 +78,13 @@ const Login = () => {
                   placeholder="Enter secure password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-input border-border"
+                  className="bg-input border-border min-h-[44px] text-base"
                 />
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full btn-primary-action"
+                className="w-full btn-primary-action min-h-[44px] text-base"
                 disabled={!astronautId || !password}
               >
                 Access Mission Control
@@ -94,7 +94,7 @@ const Login = () => {
         </Card>
 
         {/* Footer */}
-        <div className="text-center text-xs text-muted-foreground">
+        <div className="text-center text-xs md:text-sm text-muted-foreground">
           <p>Bhartiya Antariksh Station • Mission Control Interface</p>
           <p className="mt-1">Authorized Personnel Only</p>
         </div>

@@ -149,6 +149,44 @@
 
 /* Mobile-optimized chat styles */
 @media (max-width: 768px) {
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+  
+  /* Global mobile spacing */
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 1.5rem !important;
+  }
+  
+  /* Mobile typography */
+  .text-3xl {
+    font-size: 1.875rem !important;
+    line-height: 2.25rem !important;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+  
+  /* Mobile cards */
+  .data-card {
+    padding: 1rem !important;
+  }
+  
+  .card-header {
+    padding: 1rem 1rem 0.5rem 1rem !important;
+  }
+  
+  .card-content {
+    padding: 0.5rem 1rem 1rem 1rem !important;
+  }
+  
   .chat-container {
     height: calc(100vh - 200px);
     max-height: 600px;
@@ -179,6 +217,84 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
+  
+  /* Mobile navigation */
+  .grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+  
+  .grid.grid-cols-1.md\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .grid.grid-cols-1.lg\\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  /* Mobile tables */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    font-size: 0.875rem !important;
+  }
+  
+  th, td {
+    padding: 0.5rem !important;
+    white-space: nowrap;
+  }
+  
+  /* Mobile buttons */
+  .btn-mission-critical,
+  .btn-primary-action {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  /* Mobile status indicators */
+  .status-indicator {
+    width: 12px;
+    height: 12px;
+  }
+  
+  /* Mobile metric displays */
+  .metric-display {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+  
+  /* Mobile sidebar adjustments */
+  .sidebar-content {
+    padding: 0.5rem !important;
+  }
+  
+  /* Mobile form elements */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    min-height: 44px;
+  }
+  
+  /* Mobile badges */
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  /* Mobile quick actions */
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .quick-actions .card {
+    padding: 0.75rem;
+  }
 }
 
 /* Enhanced button styles for mobile */
@@ -188,6 +304,53 @@
 
 .mobile-chat-button:active {
   @apply scale-95;
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  .mobile-stack {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+  
+  .mobile-text-center {
+    text-align: center !important;
+  }
+  
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  .mobile-p-4 {
+    padding: 1rem !important;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .hover\\:bg-accent:hover {
+    background-color: transparent;
+  }
+  
+  .hover\\:shadow-xl:hover {
+    box-shadow: none;
+  }
+  
+  button:active,
+  .cursor-pointer:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
 }
 
 @layer base {

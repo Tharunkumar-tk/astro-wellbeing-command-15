@@ -58,13 +58,13 @@ const Settings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">System Settings</h1>
-            <p className="text-muted-foreground">Configure AstroBot preferences and system options</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">System Settings</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Configure AstroBot preferences and system options</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="status-indicator nominal"></div>
@@ -72,21 +72,21 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Notification Preferences */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                Notification Preferences
+                <span className="text-base md:text-lg">Notification Preferences</span>
               </CardTitle>
-              <CardDescription>Manage alerts and notification settings</CardDescription>
+              <CardDescription className="text-sm">Manage alerts and notification settings</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+            <CardContent className="space-y-3 md:space-y-4">
+              <div className="flex items-start sm:items-center justify-between gap-3">
                 <div>
-                  <p className="font-medium">Biometric Alerts</p>
-                  <p className="text-sm text-muted-foreground">Heart rate, stress level warnings</p>
+                  <p className="text-sm md:text-base font-medium">Biometric Alerts</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Heart rate, stress level warnings</p>
                 </div>
                 <Switch
                   checked={notifications.biometricAlerts}
@@ -94,10 +94,10 @@ const Settings = () => {
                 />
               </div>
               
-              <div className="flex items-center justify-between">
+              <div className="flex items-start sm:items-center justify-between gap-3">
                 <div>
-                  <p className="font-medium">System Alerts</p>
-                  <p className="text-sm text-muted-foreground">Critical system status notifications</p>
+                  <p className="text-sm md:text-base font-medium">System Alerts</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Critical system status notifications</p>
                 </div>
                 <Switch
                   checked={notifications.systemAlerts}
@@ -105,10 +105,10 @@ const Settings = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-start sm:items-center justify-between gap-3">
                 <div>
-                  <p className="font-medium">Mission Updates</p>
-                  <p className="text-sm text-muted-foreground">Schedule changes and announcements</p>
+                  <p className="text-sm md:text-base font-medium">Mission Updates</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Schedule changes and announcements</p>
                 </div>
                 <Switch
                   checked={notifications.missionUpdates}
@@ -116,10 +116,10 @@ const Settings = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-start sm:items-center justify-between gap-3">
                 <div>
-                  <p className="font-medium">Wellness Reminders</p>
-                  <p className="text-sm text-muted-foreground">Exercise, sleep, and break reminders</p>
+                  <p className="text-sm md:text-base font-medium">Wellness Reminders</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Exercise, sleep, and break reminders</p>
                 </div>
                 <Switch
                   checked={notifications.wellnessReminders}
@@ -134,15 +134,15 @@ const Settings = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Globe className="h-5 w-5" />
-                System Preferences
+                <span className="text-base md:text-lg">System Preferences</span>
               </CardTitle>
-              <CardDescription>Language, timezone, and system behavior</CardDescription>
+              <CardDescription className="text-sm">Language, timezone, and system behavior</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 md:space-y-4">
               <div className="space-y-2">
-                <p className="font-medium">Language</p>
+                <p className="text-sm md:text-base font-medium">Language</p>
                 <Select value={preferences.language} onValueChange={(value) => handlePreferenceChange('language', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="min-h-[44px]">
                     <SelectValue placeholder="Select language" />
                   </SelectTrigger>
                   <SelectContent>
@@ -155,9 +155,9 @@ const Settings = () => {
               </div>
 
               <div className="space-y-2">
-                <p className="font-medium">Timezone</p>
+                <p className="text-sm md:text-base font-medium">Timezone</p>
                 <Select value={preferences.timezone} onValueChange={(value) => handlePreferenceChange('timezone', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="min-h-[44px]">
                     <SelectValue placeholder="Select timezone" />
                   </SelectTrigger>
                   <SelectContent>
@@ -168,10 +168,10 @@ const Settings = () => {
                 </Select>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-start sm:items-center justify-between gap-3">
                 <div>
-                  <p className="font-medium">Data Synchronization</p>
-                  <p className="text-sm text-muted-foreground">Auto-sync with ground control</p>
+                  <p className="text-sm md:text-base font-medium">Data Synchronization</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Auto-sync with ground control</p>
                 </div>
                 <Switch
                   checked={preferences.dataSync}
@@ -179,10 +179,10 @@ const Settings = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-start sm:items-center justify-between gap-3">
                 <div>
-                  <p className="font-medium">Offline Mode</p>
-                  <p className="text-sm text-muted-foreground">Function during communication blackouts</p>
+                  <p className="text-sm md:text-base font-medium">Offline Mode</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Function during communication blackouts</p>
                 </div>
                 <Switch
                   checked={preferences.offlineMode}
@@ -198,17 +198,17 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              System Information
+              <span className="text-lg md:text-xl">System Information</span>
             </CardTitle>
-            <CardDescription>Current system status and version details</CardDescription>
+            <CardDescription className="text-sm">Current system status and version details</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               {systemInfo.map((info, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-card/50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-3 bg-card/50 rounded-lg gap-3">
                   <div>
-                    <p className="font-medium text-foreground">{info.label}</p>
-                    <p className="text-sm text-muted-foreground">{info.value}</p>
+                    <p className="text-sm md:text-base font-medium text-foreground">{info.label}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{info.value}</p>
                   </div>
                   <Badge variant="outline" className="text-nominal border-nominal">
                     {info.status}
@@ -224,32 +224,32 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="h-5 w-5" />
-              Data Management
+              <span className="text-lg md:text-xl">Data Management</span>
             </CardTitle>
-            <CardDescription>Backup, export, and system maintenance options</CardDescription>
+            <CardDescription className="text-sm">Backup, export, and system maintenance options</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button variant="outline" className="flex items-center gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+              <Button variant="outline" className="flex items-center gap-2 min-h-[44px]">
                 <Download className="h-4 w-4" />
-                Export Data
+                <span className="text-sm">Export Data</span>
               </Button>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2 min-h-[44px]">
                 <Upload className="h-4 w-4" />
-                Import Settings
+                <span className="text-sm">Import Settings</span>
               </Button>
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2 min-h-[44px]">
                 <RefreshCw className="h-4 w-4" />
-                System Reset
+                <span className="text-sm">System Reset</span>
               </Button>
             </div>
             
-            <div className="mt-6 p-4 bg-muted/20 rounded-lg border">
-              <h4 className="font-medium text-foreground mb-2">Storage Status</h4>
+            <div className="mt-4 md:mt-6 p-3 md:p-4 bg-muted/20 rounded-lg border">
+              <h4 className="text-sm md:text-base font-medium text-foreground mb-2">Storage Status</h4>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Used Storage</span>
-                  <span className="font-medium">2.3 GB / 16 GB</span>
+                  <span className="text-sm font-medium">2.3 GB / 16 GB</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '14%' }} />
@@ -265,42 +265,42 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              Security & Privacy
+              <span className="text-lg md:text-xl">Security & Privacy</span>
             </CardTitle>
-            <CardDescription>Security protocols and data privacy controls</CardDescription>
+            <CardDescription className="text-sm">Security protocols and data privacy controls</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
+          <CardContent className="space-y-3 md:space-y-4">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="font-medium">Encryption Status</p>
-                <p className="text-sm text-muted-foreground">End-to-end data encryption</p>
+                <p className="text-sm md:text-base font-medium">Encryption Status</p>
+                <p className="text-xs md:text-sm text-muted-foreground">End-to-end data encryption</p>
               </div>
               <Badge variant="outline" className="text-nominal border-nominal">
                 Enabled
               </Badge>
             </div>
             
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="font-medium">Access Logging</p>
-                <p className="text-sm text-muted-foreground">Track system access and changes</p>
+                <p className="text-sm md:text-base font-medium">Access Logging</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Track system access and changes</p>
               </div>
               <Badge variant="outline" className="text-nominal border-nominal">
                 Active
               </Badge>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="font-medium">Ground Control Link</p>
-                <p className="text-sm text-muted-foreground">Secure communication with mission control</p>
+                <p className="text-sm md:text-base font-medium">Ground Control Link</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Secure communication with mission control</p>
               </div>
               <Badge variant="outline" className="text-nominal border-nominal">
                 Authenticated
               </Badge>
             </div>
 
-            <Button variant="outline" className="w-full mt-4">
+            <Button variant="outline" className="w-full mt-4 min-h-[44px]">
               View Security Log
             </Button>
           </CardContent>

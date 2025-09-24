@@ -50,15 +50,15 @@ export function AppSidebar() {
     >
       <SidebarContent>
         {/* Header */}
-        <div className="p-4 border-b border-sidebar-border">
+        <div className="p-3 md:p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-primary/10 rounded-lg">
               <Satellite className="h-6 w-6 text-primary" />
             </div>
             {state !== "collapsed" && (
               <div>
-                <h2 className="text-lg font-bold text-sidebar-foreground">AstroBot</h2>
-                <p className="text-xs text-sidebar-foreground/60">Mission Control</p>
+                <h2 className="text-base md:text-lg font-bold text-sidebar-foreground">AstroBot</h2>
+                <p className="text-xs text-sidebar-foreground/60 hidden sm:block">Mission Control</p>
               </div>
             )}
           </div>
@@ -76,8 +76,8 @@ export function AppSidebar() {
                       end 
                       className={getNavCls}
                     >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {state !== "collapsed" && <span>{item.title}</span>}
+                      <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="truncate">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -88,7 +88,7 @@ export function AppSidebar() {
 
         {/* Mission Status */}
         {state !== "collapsed" && (
-          <div className="p-4 mt-auto border-t border-sidebar-border">
+          <div className="p-3 md:p-4 mt-auto border-t border-sidebar-border">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-sidebar-foreground/60">Mission Day</span>
@@ -107,7 +107,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* Trigger positioned at top right of sidebar */}
-      <SidebarTrigger className="absolute -right-4 top-4 bg-sidebar-background border border-sidebar-border" />
+      <SidebarTrigger className="absolute -right-3 md:-right-4 top-3 md:top-4 bg-sidebar-background border border-sidebar-border h-8 w-8 md:h-10 md:w-10" />
     </Sidebar>
   );
 }

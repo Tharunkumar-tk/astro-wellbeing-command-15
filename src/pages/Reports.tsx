@@ -142,22 +142,23 @@ const Reports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Well-being Reports</h1>
-            <p className="text-muted-foreground">Comprehensive analysis and trends</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Well-being Reports</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Comprehensive analysis and trends</p>
           </div>
           <Button variant="outline" className="flex items-center gap-2">
             <Download className="h-4 w-4" />
-            Export Report
+            <span className="hidden sm:inline">Export Report</span>
+            <span className="sm:hidden">Export</span>
           </Button>
         </div>
 
         {/* Summary Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           <MetricCard
             title="Average Mood"
             value="8.4/10"
@@ -188,15 +189,15 @@ const Reports = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Mood Trends */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Mood Trends (Last 7 Days)
+                <span className="text-base md:text-lg">Mood Trends (Last 7 Days)</span>
               </CardTitle>
-              <CardDescription>Daily emotional well-being scores</CardDescription>
+              <CardDescription className="text-sm">Daily emotional well-being scores</CardDescription>
             </CardHeader>
             <CardContent>
               <SimpleChart data={moodTrendData} type="line" color="bg-chart-1" />
@@ -208,9 +209,9 @@ const Reports = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                Stress Levels (Last 7 Days)
+                <span className="text-base md:text-lg">Stress Levels (Last 7 Days)</span>
               </CardTitle>
-              <CardDescription>Daily stress percentage readings</CardDescription>
+              <CardDescription className="text-sm">Daily stress percentage readings</CardDescription>
             </CardHeader>
             <CardContent>
               <SimpleChart data={stressLevelData} type="bar" color="bg-chart-2" />
@@ -222,9 +223,9 @@ const Reports = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PieChart className="h-5 w-5" />
-                Sleep Quality Distribution
+                <span className="text-base md:text-lg">Sleep Quality Distribution</span>
               </CardTitle>
-              <CardDescription>Average sleep phase breakdown</CardDescription>
+              <CardDescription className="text-sm">Average sleep phase breakdown</CardDescription>
             </CardHeader>
             <CardContent>
               <PieChart data={sleepQualityData} />
@@ -236,25 +237,25 @@ const Reports = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5" />
-                Physical Activity Summary
+                <span className="text-base md:text-lg">Physical Activity Summary</span>
               </CardTitle>
-              <CardDescription>Exercise compliance and metrics</CardDescription>
+              <CardDescription className="text-sm">Exercise compliance and metrics</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 md:space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Exercise Sessions</span>
-                <span className="font-medium">6/7 days</span>
+                <span className="text-xs md:text-sm text-muted-foreground">Exercise Sessions</span>
+                <span className="text-sm md:text-base font-medium">6/7 days</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Average Duration</span>
-                <span className="font-medium">45 minutes</span>
+                <span className="text-xs md:text-sm text-muted-foreground">Average Duration</span>
+                <span className="text-sm md:text-base font-medium">45 minutes</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Resistance Training</span>
+                <span className="text-xs md:text-sm text-muted-foreground">Resistance Training</span>
                 <Badge variant="outline" className="text-nominal border-nominal">Completed</Badge>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Cardio Sessions</span>
+                <span className="text-xs md:text-sm text-muted-foreground">Cardio Sessions</span>
                 <Badge variant="outline" className="text-nominal border-nominal">5/5</Badge>
               </div>
             </CardContent>
@@ -266,28 +267,28 @@ const Reports = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Daily Log Entries
+              <span className="text-lg md:text-xl">Daily Log Entries</span>
             </CardTitle>
-            <CardDescription>Personal well-being assessments and notes</CardDescription>
+            <CardDescription className="text-sm">Personal well-being assessments and notes</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {dailyLogs.map((log, index) => (
-                <div key={index} className="flex items-start gap-4 p-4 bg-card/50 rounded-lg border">
+                <div key={index} className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-card/50 rounded-lg border">
                   <div className={`status-indicator ${log.status} mt-2`}></div>
                   <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-foreground">{log.date}</span>
-                      <div className="flex items-center gap-4">
-                        <span className="text-xs text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+                      <span className="text-sm md:text-base font-medium text-foreground">{log.date}</span>
+                      <div className="flex items-center gap-2 md:gap-4">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
                           Emotional: <span className="font-medium text-chart-1">{log.emotional}/10</span>
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
                           Physical: <span className="font-medium text-chart-2">{log.physical}/10</span>
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{log.notes}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{log.notes}</p>
                   </div>
                 </div>
               ))}

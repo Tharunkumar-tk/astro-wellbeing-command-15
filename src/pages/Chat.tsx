@@ -657,41 +657,44 @@ const Chat = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">AstroBot Companion</h1>
-            <p className="text-muted-foreground">AI-powered mission companion and well-being support</p>
-            <p className="text-sm text-muted-foreground">Call me Buddy, Sam, Samantha, or just Bot!</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">AstroBot Companion</h1>
+            <p className="text-sm md:text-base text-muted-foreground">AI-powered mission companion and well-being support</p>
+            <p className="text-xs md:text-sm text-muted-foreground">Call me Buddy, Sam, Samantha, or just Bot!</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
             <div className="status-indicator nominal"></div>
             <span className="text-sm font-medium text-nominal">AstroBot Online</span>
             {isSpeaking && (
               <div className="flex items-center gap-1">
                 <Volume2 className="h-4 w-4 text-primary animate-pulse" />
-                <span className="text-xs text-primary">Speaking...</span>
+                <span className="text-xs text-primary hidden sm:inline">Speaking...</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Mission Status Alert */}
-        <div className="text-center mb-4">
+        <div className="text-center mb-2 md:mb-4">
           <Badge variant="outline" className="text-primary border-primary">
-            🎤 Voice: Google Samantha • Quick Output • Interruptible
+            <span className="hidden sm:inline">🎤 Voice: Google Samantha • Quick Output • Interruptible</span>
+            <span className="sm:hidden">🎤 Voice Active</span>
           </Badge>
         </div>
         <Card className="border-primary/20">
-          <CardContent className="p-4">
+          <CardContent className="p-3 md:p-4">
             <div className="flex items-center gap-3">
               <Heart className="h-5 w-5 text-nominal" />
               <div>
-                <p className="font-medium text-foreground">Mission Day {sessionData.missionDay} • All Systems Nominal</p>
-                <p className="text-sm text-muted-foreground">
-                  Samantha voice active • Quick output enabled • Fuel: {sessionData.fuelLevel}% • O₂: {sessionData.oxygenLevel}% • Conversations: {sessionData.conversationCount}
+                <p className="text-sm md:text-base font-medium text-foreground">Mission Day {sessionData.missionDay} • All Systems Nominal</p>
+                <p className="text-xs md:text-sm text-muted-foreground">
+                  <span className="hidden sm:inline">Samantha voice active • Quick output enabled • </span>
+                  Fuel: {sessionData.fuelLevel}% • O₂: {sessionData.oxygenLevel}%
+                  <span className="hidden sm:inline"> • Conversations: {sessionData.conversationCount}</span>
                 </p>
               </div>
             </div>
@@ -699,28 +702,28 @@ const Chat = () => {
         </Card>
 
         {/* Chat Interface */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
           {/* Quick Actions */}
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Quick Commands</CardTitle>
-                <CardDescription>Common requests and support</CardDescription>
+                <CardTitle className="text-base md:text-lg">Quick Commands</CardTitle>
+                <CardDescription className="text-sm">Common requests and support</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 md:space-y-3">
                 {quickResponses.map((response, index) => (
                   <Button
                     key={index}
                     variant="outline"
-                    className="w-full justify-start gap-2 h-auto py-3"
+                    className="w-full justify-start gap-2 h-auto py-2 md:py-3 text-left"
                     onClick={() => handleSendMessage(response.text)}
                   >
                     <response.icon className="h-4 w-4" />
-                    <span className="text-sm">{response.text}</span>
+                    <span className="text-xs md:text-sm truncate">{response.text}</span>
                   </Button>
                 ))}
                 
-                <div className="pt-2 border-t">
+                <div className="pt-2 border-t hidden md:block">
                   <p className="text-xs text-muted-foreground mb-2">Voice Commands:</p>
                   <div className="space-y-1 text-xs text-muted-foreground">
                     <p>• "Hello Buddy"</p>
@@ -736,13 +739,13 @@ const Chat = () => {
 
           {/* Chat Messages */}
           <div className="lg:col-span-3">
-            <Card className="h-[600px] flex flex-col">
+            <Card className="h-[500px] md:h-[600px] flex flex-col">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  Mission Companion Chat
+                  <span className="text-base md:text-lg">Mission Companion Chat</span>
                   {sessionData.sleepHours && (
-                    <Badge variant="outline" className="ml-auto">
+                    <Badge variant="outline" className="ml-auto text-xs">
                       Sleep: {sessionData.sleepHours}h tracked
                     </Badge>
                   )}
@@ -750,29 +753,29 @@ const Chat = () => {
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
                 {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+                <div className="flex-1 overflow-y-auto space-y-3 md:space-y-4 mb-3 md:mb-4 px-1">
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                      className={`flex gap-2 md:gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       {message.type === 'bot' && (
                         <div className="flex-shrink-0">
-                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 md:w-8 md:h-8 bg-primary/10 rounded-full flex items-center justify-center">
                             <Bot className="h-4 w-4 text-primary" />
                           </div>
                         </div>
                       )}
                       
-                      <div className={`max-w-xs lg:max-w-md ${message.type === 'user' ? 'order-first' : ''}`}>
+                      <div className={`max-w-[280px] sm:max-w-xs lg:max-w-md ${message.type === 'user' ? 'order-first' : ''}`}>
                         <div
-                          className={`p-3 rounded-lg ${
+                          className={`p-2 md:p-3 rounded-lg ${
                             message.type === 'user'
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-muted text-foreground'
                           }`}
                         >
-                          <p className="text-sm">{message.content}</p>
+                          <p className="text-xs md:text-sm leading-relaxed">{message.content}</p>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                           <p className="text-xs text-muted-foreground">
@@ -788,7 +791,7 @@ const Chat = () => {
 
                       {message.type === 'user' && (
                         <div className="flex-shrink-0">
-                          <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 md:w-8 md:h-8 bg-accent/10 rounded-full flex items-center justify-center">
                             <User className="h-4 w-4 text-accent" />
                           </div>
                         </div>
@@ -799,57 +802,57 @@ const Chat = () => {
                 </div>
 
                 {/* Input Area */}
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col gap-2">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Type your message to AstroBot, Commander..."
-                    className="flex-1 text-base" 
+                    className="w-full text-base min-h-[44px]" 
                     disabled={isSpeaking}
                   />
                   
-                  <div className="flex gap-2 w-full sm:w-auto">
+                  <div className="grid grid-cols-2 md:flex gap-2">
                     <Button 
                       onClick={toggleListening}
                       variant={isListening ? "destructive" : "outline"}
-                      className="flex-1 sm:flex-none"
+                      className="min-h-[44px] text-xs md:text-sm"
                       disabled={isSpeaking}
                       title={isListening ? "Stop listening" : "Start voice input"}
                     >
-                      {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-                      <span className="sm:hidden">{isListening ? "Stop" : "Voice"}</span>
+                      {isListening ? <MicOff className="h-4 w-4 mr-1 md:mr-2" /> : <Mic className="h-4 w-4 mr-1 md:mr-2" />}
+                      <span>{isListening ? "Stop" : "Voice"}</span>
                     </Button>
                     
                     {isSpeaking && (
                       <Button 
                         onClick={stopSpeech}
                         variant="destructive"
-                        className="flex-1 sm:flex-none"
+                        className="min-h-[44px] text-xs md:text-sm"
                         title="Stop speech"
                       >
-                        <VolumeX className="h-4 w-4 mr-2" />
-                        <span className="sm:hidden">Stop</span>
+                        <VolumeX className="h-4 w-4 mr-1 md:mr-2" />
+                        <span>Stop</span>
                       </Button>
                     )}
                     
                     <Button 
                       onClick={() => setSpeechEnabled(!speechEnabled)}
                       variant={speechEnabled ? "outline" : "secondary"}
-                      className="flex-1 sm:flex-none"
+                      className="min-h-[44px] text-xs md:text-sm"
                       title={speechEnabled ? "Disable speech" : "Enable speech"}
                     >
-                      <Volume2 className="h-4 w-4 mr-2" />
-                      <span className="sm:hidden">{speechEnabled ? "On" : "Off"}</span>
+                      <Volume2 className="h-4 w-4 mr-1 md:mr-2" />
+                      <span>{speechEnabled ? "On" : "Off"}</span>
                     </Button>
                     
                     <Button 
                       onClick={() => handleSendMessage()}
                       disabled={!inputMessage.trim() || isSpeaking}
-                      className="flex-1 sm:flex-none"
+                      className="min-h-[44px] text-xs md:text-sm col-span-2 md:col-span-1"
                     >
-                      <Send className="h-4 w-4 mr-2" />
-                      <span className="sm:hidden">Send</span>
+                      <Send className="h-4 w-4 mr-1 md:mr-2" />
+                      <span>Send</span>
                     </Button>
                   </div>
                 </div>
@@ -857,7 +860,8 @@ const Chat = () => {
                 {isListening && (
                   <div className="mt-3 text-center">
                     <Badge variant="outline" className="text-primary border-primary animate-pulse">
-                      🎤 Listening... Speak now, Commander
+                      <span className="hidden sm:inline">🎤 Listening... Speak now, Commander</span>
+                      <span className="sm:hidden">🎤 Listening...</span>
                     </Badge>
                   </div>
                 )}
@@ -865,7 +869,8 @@ const Chat = () => {
                 {isSpeaking && (
                   <div className="mt-3 text-center">
                     <Badge variant="outline" className="text-accent border-accent animate-pulse">
-                      🔊 Samantha speaking... Tap Stop to interrupt
+                      <span className="hidden sm:inline">🔊 Samantha speaking... Tap Stop to interrupt</span>
+                      <span className="sm:hidden">🔊 Speaking...</span>
                     </Badge>
                   </div>
                 )}
