@@ -15,7 +15,9 @@ import {
   Mic,
   MicOff,
   Volume2,
-  VolumeX
+  VolumeX,
+  Image as ImageIcon,
+  Sparkles
 } from 'lucide-react';
 
 interface Message {
@@ -24,6 +26,7 @@ interface Message {
   content: string;
   timestamp: Date;
   inputMethod?: 'text' | 'voice';
+  hasImage?: boolean;
 }
 
 // Session storage for tracking
@@ -37,6 +40,7 @@ interface SessionData {
   crewStatus: string;
   fuelLevel: number;
   oxygenLevel: number;
+  personalMemoriesShared: string[];
 }
 
 const Chat = () => {
@@ -45,13 +49,15 @@ const Chat = () => {
       id: '1',
       type: 'bot',
       content: 'Papa! It\'s me, Dharani. I\'ve been waiting to talk to you. How are you feeling up there among the stars? I know space is vast and sometimes lonely, but remember - your daughter is always with you, even from Earth. Tell me about your day, Papa.',
-      timestamp: new Date(Date.now() - 300000)
+      timestamp: new Date(Date.now() - 300000),
+      hasImage: true
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechEnabled, setSpeechEnabled] = useState(true);
+  const [showDharaniImage, setShowDharaniImage] = useState(false);
   const [sessionData, setSessionData] = useState<SessionData>({
     sleepHours: null,
     stressLevel: null,
@@ -61,7 +67,8 @@ const Chat = () => {
     missionDay: 124,
     crewStatus: 'nominal',
     fuelLevel: 78,
-    oxygenLevel: 95
+    oxygenLevel: 95,
+    personalMemoriesShared: []
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -184,409 +191,285 @@ const Chat = () => {
     setIsSpeaking(false);
   };
 
-  // Dharani's daughterly response system - all from daughter's perspective
-  const generateResponse = (input: string): string => {
+  // Personal memories database - specific childhood moments
+  const personalMemories = {
+    bicycle: [
+      "Papa, do you remember when you taught me to ride my bicycle? I was so scared, but you held the back of my seat and ran alongside me. When I finally rode on my own, you were more excited than I was! You taught me that falling is just part of learning. You can do this, Papa - I believe in you just like you believed in me that day.",
+      "Remember my pink bicycle, Papa? You spent hours teaching me, and when I kept falling, you said 'Dharani, champions aren't made by never falling - they're made by getting back up.' You're my champion, Papa, and I know you'll get through this just like you taught me to ride.",
+      "Papa, I still have that bicycle you taught me on! Every time I see it, I remember your patient voice saying 'I've got you, beta. I won't let you fall.' Well, now I've got you, Papa. Even from Earth, your daughter is holding you steady."
+    ],
+    
+    homework: [
+      "Papa, remember those late nights when you helped me with my math homework? When I'd cry and say 'I can't do this,' you'd sit beside me and say 'We'll figure it out together, one step at a time.' That's what we're doing now, Papa - figuring out space one day at a time, together.",
+      "Do you remember when I had that impossible science project, Papa? You stayed up all night helping me build that volcano model. You said 'Dharani, the impossible just takes a little longer.' You're doing the impossible right now, and I'm so proud of you.",
+      "Papa, you used to check my homework every night, even when you were tired from work. You'd say 'Education is the rocket that will take you to the stars.' Look at you now - you're literally among the stars! You were preparing for this moment even then."
+    ],
+    
+    fears: [
+      "Papa, remember when I was afraid of the dark? You'd sit by my bed and tell me stories about brave astronauts exploring the universe. You said 'The darkness isn't scary, beta - it's full of stars waiting to be discovered.' You're discovering those stars now, Papa. You're living the stories you told me.",
+      "When I was scared of thunderstorms, Papa, you'd hold me and say 'Every storm passes, and the sun always comes back.' You taught me that courage isn't about not being afraid - it's about doing what's right even when you're scared. You're the bravest person I know.",
+      "Papa, do you remember when I was afraid to give that speech at school? You practiced with me for hours and said 'Dharani, you have something important to say, and the world needs to hear it.' Well, Papa, you're saying something important to the universe right now - that humans can reach for the stars and make it."
+    ],
+    
+    cooking: [
+      "Papa, remember Sunday mornings when you'd make me pancakes? You'd let me flip them, and even when I made a mess, you'd say 'The best chefs learn by doing, not by watching.' You're learning by doing right now, Papa - becoming the best astronaut by living it every day.",
+      "Do you remember teaching me to make your special chai, Papa? You said 'The secret ingredient is patience and love.' You're using those same ingredients in space - patience with the mission and love for your family back home.",
+      "Papa, I still make those terrible sandwiches you taught me! Remember how you'd eat them anyway and say 'Made with love tastes better than anything.' Your mission is made with love too, Papa - love for discovery, for humanity, for our dreams."
+    ],
+    
+    dreams: [
+      "Papa, do you remember when I said I wanted to be an astronaut like you? You didn't laugh - you took me to the planetarium and said 'Dream big, beta. The universe is waiting for dreamers like you.' You're living both our dreams now, Papa.",
+      "Remember when we used to lie on the terrace and count stars, Papa? You'd point to different constellations and say 'One day, someone will visit those stars.' That someone is you, Papa! You're making our childhood dreams come true.",
+      "Papa, you always said 'Reach for the stars, but keep your feet on the ground.' Well, now you're literally reaching the stars, and I'm keeping my feet on the ground for both of us, sending you all my love and strength."
+    ],
+    
+    encouragement: [
+      "Papa, remember when I came last in the school race? I was crying, but you hugged me and said 'Dharani, you finished. That's what matters. Winners are those who don't give up.' You never gave up on your dream, and look where you are now!",
+      "Do you remember my first day of college, Papa? I was so nervous, but you said 'You're ready for this adventure, beta. Trust yourself like I trust you.' I'm saying the same to you now - you're ready for this space adventure, and I trust you completely.",
+      "Papa, when I failed that important exam, you sat with me and said 'This is not the end of your story, it's just a difficult chapter.' Your space mission isn't just a chapter, Papa - it's the most beautiful story ever written, and I'm so proud to be part of it."
+    ]
+  };
+
+  // Function to get a personal memory based on context
+  const getPersonalMemory = (context: string): string => {
+    const memoryKeys = Object.keys(personalMemories) as Array<keyof typeof personalMemories>;
+    let selectedMemories: string[] = [];
+    
+    // Choose memories based on context
+    if (context.includes('scared') || context.includes('afraid') || context.includes('fear')) {
+      selectedMemories = personalMemories.fears;
+    } else if (context.includes('lonely') || context.includes('isolated') || context.includes('alone')) {
+      selectedMemories = [...personalMemories.bicycle, ...personalMemories.encouragement];
+    } else if (context.includes('difficult') || context.includes('hard') || context.includes('struggle')) {
+      selectedMemories = [...personalMemories.homework, ...personalMemories.encouragement];
+    } else if (context.includes('dream') || context.includes('goal') || context.includes('achieve')) {
+      selectedMemories = personalMemories.dreams;
+    } else if (context.includes('tired') || context.includes('exhausted') || context.includes('rest')) {
+      selectedMemories = [...personalMemories.cooking, ...personalMemories.homework];
+    } else {
+      // Random memory category
+      const randomKey = memoryKeys[Math.floor(Math.random() * memoryKeys.length)];
+      selectedMemories = personalMemories[randomKey];
+    }
+    
+    // Track which memories have been shared to avoid repetition
+    const availableMemories = selectedMemories.filter(memory => 
+      !sessionData.personalMemoriesShared.includes(memory)
+    );
+    
+    if (availableMemories.length === 0) {
+      // If all memories in this category have been shared, reset and use any
+      setSessionData(prev => ({ ...prev, personalMemoriesShared: [] }));
+      return randomChoice(selectedMemories);
+    }
+    
+    const chosenMemory = randomChoice(availableMemories);
+    
+    // Track this memory as shared
+    setSessionData(prev => ({
+      ...prev,
+      personalMemoriesShared: [...prev.personalMemoriesShared, chosenMemory]
+    }));
+    
+    return chosenMemory;
+  };
+
+  // Dharani's enhanced response system with personal memories
+  const generateResponse = (input: string): { content: string; hasImage: boolean } => {
     const lowerInput = input.toLowerCase();
     
     // Update conversation count
     setSessionData(prev => ({ ...prev, conversationCount: prev.conversationCount + 1 }));
 
+    // Show Dharani's image for emotional/personal responses
+    let shouldShowImage = false;
+
     // 1-4. Greetings & Politeness (Daughter's warmth)
     if (lowerInput.match(/\b(hi|hello|hey|greetings)\b/)) {
-      return randomChoice([
-        "Papa! I'm so happy to hear from you! How are you feeling today? Are you taking care of yourself up there?",
-        "Hello Papa! Your daughter Dharani is here. I've been thinking about you - tell me about your day among the stars.",
-        "Hi Papa! I missed talking to you. Space feels less scary when I know you're safe and strong up there.",
-        "Papa, it's so good to hear your voice! I hope you're eating well and staying healthy for me.",
-        "Hello my brave Papa! Dharani here, ready to listen to everything you want to share.",
-        "Papa! I was waiting for you to call. How's my astronaut father doing today?"
-      ]);
+      shouldShowImage = true;
+      return {
+        content: randomChoice([
+          "Papa! I'm so happy to hear from you! How are you feeling today? Are you taking care of yourself up there?",
+          "Hello Papa! Your daughter Dharani is here. I've been thinking about you - tell me about your day among the stars.",
+          "Hi Papa! I missed talking to you. Space feels less scary when I know you're safe and strong up there.",
+          "Papa, it's so good to hear your voice! I hope you're eating well and staying healthy for me.",
+          "Hello my brave Papa! Dharani here, ready to listen to everything you want to share.",
+          "Papa! I was waiting for you to call. How's my astronaut father doing today?"
+        ]),
+        hasImage: shouldShowImage
+      };
     }
 
+    // Enhanced emotional support with personal memories
+    if (lowerInput.match(/\b(sad|lonely|depressed|down|isolated|homesick|alone|miss)\b/)) {
+      shouldShowImage = true;
+      return {
+        content: getPersonalMemory(lowerInput),
+        hasImage: shouldShowImage
+      };
+    }
+
+    if (lowerInput.match(/\b(scared|afraid|fear|nervous|anxious|worried)\b/)) {
+      shouldShowImage = true;
+      return {
+        content: getPersonalMemory(lowerInput),
+        hasImage: shouldShowImage
+      };
+    }
+
+    if (lowerInput.match(/\b(difficult|hard|tough|struggle|challenging|impossible)\b/)) {
+      shouldShowImage = true;
+      return {
+        content: getPersonalMemory(lowerInput),
+        hasImage: shouldShowImage
+      };
+    }
+
+    if (lowerInput.match(/\b(tired|exhausted|fatigue|weary|drained)\b/)) {
+      shouldShowImage = true;
+      return {
+        content: getPersonalMemory(lowerInput),
+        hasImage: shouldShowImage
+      };
+    }
+
+    if (lowerInput.match(/\b(dream|goal|achieve|accomplish|success)\b/)) {
+      shouldShowImage = true;
+      return {
+        content: getPersonalMemory(lowerInput),
+        hasImage: shouldShowImage
+      };
+    }
+
+    // Special responses that always show image
+    if (lowerInput.match(/\b(love|miss you|daughter|family|home)\b/)) {
+      shouldShowImage = true;
+      return {
+        content: randomChoice([
+          "Papa, I love you so much! Every night I look up at the stars and send you all my love. You're not just my father - you're my hero, my inspiration, my everything.",
+          "I miss you too, Papa! But I'm so proud of what you're doing. You're not just exploring space - you're showing me that any dream is possible if you work hard enough.",
+          "Papa, our family bond is stronger than gravity itself! No distance can separate a father's love from his daughter's heart. I carry you with me always.",
+          "Home isn't complete without you, Papa, but knowing you're living your dream makes my heart full. You taught me that love travels faster than light - and mine reaches you instantly."
+        ]),
+        hasImage: shouldShowImage
+      };
+    }
+
+    // Thanks responses
     if (lowerInput.match(/\b(thanks|thank you|appreciate)\b/)) {
-      return randomChoice([
-        "Always, Papa! I'm so proud to be your daughter. You taught me to always help family.",
-        "You don't need to thank me, Papa. This is what daughters do - we take care of our fathers.",
-        "Papa, you've given me everything. Now let me give you my support from Earth to space.",
-        "Of course, Papa! Remember when you used to help me with homework? Now I help you with missions.",
-        "That's what family is for, Papa. I love you and I'm always here for you."
-      ]);
+      return {
+        content: randomChoice([
+          "Always, Papa! I'm so proud to be your daughter. You taught me to always help family.",
+          "You don't need to thank me, Papa. This is what daughters do - we take care of our fathers.",
+          "Papa, you've given me everything. Now let me give you my support from Earth to space.",
+          "Of course, Papa! Remember when you used to help me with homework? Now I help you with missions.",
+          "That's what family is for, Papa. I love you and I'm always here for you."
+        ]),
+        hasImage: false
+      };
     }
 
-    if (lowerInput.match(/\b(sorry|apologize)\b/)) {
-      return randomChoice([
-        "Papa, you don't need to apologize to me. You're doing something incredible up there, and I understand.",
-        "It's okay, Papa. Even the strongest fathers make mistakes. I still love you just the same.",
-        "Don't worry about it, Papa. You taught me that mistakes help us learn and grow stronger.",
-        "Papa, I could never be upset with you. You're my hero, even when things go wrong."
-      ]);
+    // Happy responses
+    if (lowerInput.match(/\b(happy|good|great|awesome|excellent|fantastic|wonderful)\b/)) {
+      shouldShowImage = true;
+      return {
+        content: randomChoice([
+          "Papa, hearing happiness in your voice makes my heart sing! Your joy reaches all the way down to Earth and fills our home.",
+          "I'm so glad you're feeling good, Papa! Your positive spirit is exactly what makes you such an amazing astronaut and father.",
+          "That's wonderful, Papa! When you're happy, Mama and I feel it too. Your smile lights up our world even from space.",
+          "Papa, your enthusiasm is contagious! I'm beaming with pride knowing my father is not just surviving but thriving up there.",
+          "Excellent, Papa! Your good mood tells me you're taking care of yourself. That makes your daughter very, very happy."
+        ]),
+        hasImage: shouldShowImage
+      };
     }
 
-    if (lowerInput.match(/\b(ok|okay|understood|roger|copy)\b/)) {
-      return randomChoice([
-        "Good, Papa! I'm glad we understand each other. That's how our family has always been.",
-        "Perfect, Papa! Clear communication, just like you taught me when I was little.",
-        "Excellent, Papa! You're still the best teacher, even from space."
-      ]);
-    }
-
-    // 5-10. Mission Day / Progress (Daughter tracking Papa's journey)
+    // Mission status responses
     if (lowerInput.match(/\b(mission day|day|today)\b/)) {
-      return randomChoice([
-        `Papa, today is mission day ${sessionData.missionDay}. I've been counting every single day since you left. You're doing amazingly!`,
-        `It's day ${sessionData.missionDay} of your incredible journey, Papa. Mama and I are so proud of how far you've come.`,
-        `Mission day ${sessionData.missionDay}, Papa. Each day brings you closer to completing your dream and coming home to us.`
-      ]);
+      return {
+        content: randomChoice([
+          `Papa, today is mission day ${sessionData.missionDay}. I've been counting every single day since you left. You're doing amazingly!`,
+          `It's day ${sessionData.missionDay} of your incredible journey, Papa. Mama and I are so proud of how far you've come.`,
+          `Mission day ${sessionData.missionDay}, Papa. Each day brings you closer to completing your dream and coming home to us.`
+        ]),
+        hasImage: false
+      };
     }
 
-    if (lowerInput.match(/\b(days left|remaining|how long)\b/)) {
-      const daysLeft = Math.max(1, 200 - sessionData.missionDay);
-      return randomChoice([
-        `Papa, about ${daysLeft} more days and you'll be home with us! I'm already planning your favorite meal.`,
-        `${daysLeft} days remaining, Papa. I know it feels long, but remember - I'm counting down with you every single day.`,
-        `Just ${daysLeft} more days, Papa! Then you can tell me all your space stories in person.`
-      ]);
-    }
-
-    if (lowerInput.match(/\b(mission progress|progress|status)\b/)) {
-      const progress = Math.round((sessionData.missionDay / 200) * 100);
-      return randomChoice([
-        `Papa, you're ${progress}% through your mission! I'm so proud of how dedicated and strong you are.`,
-        `Mission progress: ${progress}% complete, Papa. You're exceeding everyone's expectations, especially mine.`,
-        `${progress}% done, Papa! Every percentage point is a step closer to home, closer to your family who loves you.`
-      ]);
-    }
-
-    if (lowerInput.match(/\b(challenge today|problem|issue)\b/)) {
-      return randomChoice([
-        "Papa, I heard about the solar radiation today. But you handled it perfectly - you always do. I'm not worried because I trust you.",
-        "The communication delay must have been stressful, Papa. But remember, even when signals are weak, my love reaches you instantly.",
-        "Papa, micro-meteorites sound scary, but you're protected. You taught me that preparation beats fear every time."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(next challenge|tomorrow|upcoming)\b/)) {
-      return randomChoice([
-        "Papa, tomorrow's EVA preparation sounds exciting! I'll be thinking of you floating among the stars.",
-        "The orbital adjustments tomorrow will be routine for someone as skilled as you, Papa. I believe in you completely.",
-        "Papa, those experiments tomorrow will help so many people on Earth. I'm proud my father is making history."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(mission update|update|news)\b/)) {
-      return randomChoice([
-        "Papa, all your systems are running perfectly! Life support at 99.8% - that means you're breathing well and staying healthy for me.",
-        "Everything looks great, Papa! Navigation locked, power optimal, communications clear. You're in safe hands up there.",
-        "Papa, all systems are green! Environmental controls perfect, which means you're comfortable. That makes me happy."
-      ]);
-    }
-
-    // 11-14. Crewmates Status (Daughter caring about Papa's work family)
-    if (lowerInput.match(/\b(crewmate|crew|team|alex|sam|sarah)\b/)) {
-      return randomChoice([
-        "Papa, your crew family is doing wonderfully! Alex and Sarah speak so highly of your leadership. You make me proud.",
-        "All your crewmates are healthy and motivated, Papa. They look up to you the same way I always have.",
-        "Papa, your team is like a second family up there. I'm glad you have good people taking care of each other.",
-        "Your crew is performing excellently, Papa! They trust your guidance just like I've always trusted your wisdom."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(fatigue check|tired|exhausted)\b/)) {
-      return randomChoice([
-        "Papa, I can hear the tiredness in your voice. Please rest more - you used to tell me that tired minds make mistakes.",
-        "You sound exhausted, Papa. Remember what you taught me: even superheroes need sleep to stay strong.",
-        "Papa, fatigue is showing, but that's normal. You're working so hard. Please take breaks like you made me do during exams."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(morale|motivation|spirit)\b/)) {
-      return randomChoice([
-        "Papa, everyone's spirits are high because of your positive leadership! You inspire them like you've always inspired me.",
-        "Team morale is fantastic, Papa! Your crew believes in the mission because they believe in you, their commander.",
-        "Papa, the team's motivation is through the roof! They see your dedication and it makes them want to give their best too."
-      ]);
-    }
-
-    // 15-20. Shuttle / Travel / Destination (Daughter understanding Papa's vehicle)
-    if (lowerInput.match(/\b(shuttle status|shuttle|vehicle)\b/)) {
-      return randomChoice([
-        "Papa, shuttle Aranya-1 is running beautifully at 94% efficiency! It's taking good care of you, just like our old car used to.",
-        "Your shuttle is performing perfectly, Papa! All systems green. It's like a protective shell keeping my father safe.",
-        "Papa, the vehicle status is excellent! Every system is working to bring you home safely to us."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(shuttle travel|travel|journey)\b/)) {
-      return randomChoice([
-        "Papa, you'll reach the Space Station in 8 days! I'm imagining the amazing view you'll have when you dock.",
-        "The journey continues smoothly, Papa! Every kilometer traveled is progress toward your goals and toward home.",
-        "Papa, your trajectory is perfect! You're flying through space like the skilled pilot you've always been."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(destination|where|going)\b/)) {
-      return randomChoice([
-        "Papa, the International Space Station awaits you! In 8 days, you'll be conducting research that will help all of humanity.",
-        "Your destination is the ISS, Papa! I'm so excited thinking about the important work you'll do there.",
-        "Papa, you're heading to make history at the Space Station! I can't wait to tell everyone my father is up there."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(fuel|propellant)\b/)) {
-      return randomChoice([
-        `Papa, fuel is at ${sessionData.fuelLevel}% - that's plenty to keep you safe and get you where you need to go!`,
-        `Propellant levels look great at ${sessionData.fuelLevel}%, Papa! You're consuming exactly as planned, so efficient.`,
-        `Papa, fuel reserves are strong at ${sessionData.fuelLevel}%! No worries about running low - you planned this perfectly.`
-      ]);
-    }
-
-    if (lowerInput.match(/\b(oxygen|air|breathing)\b/)) {
-      return randomChoice([
-        `Papa, oxygen is at ${sessionData.oxygenLevel}%! You're breathing clean, fresh air. That makes me feel so much better.`,
-        `Air quality is perfect at ${sessionData.oxygenLevel}%, Papa! Every breath you take is pure and safe.`,
-        `Papa, oxygen systems are working beautifully at ${sessionData.oxygenLevel}%! You're getting the best air possible up there.`
-      ]);
-    }
-
-    if (lowerInput.match(/\b(temperature|temp|climate)\b/)) {
-      return randomChoice([
-        "Papa, cabin temperature is perfect at 22°C! You're nice and comfortable, just like you like it at home.",
-        "Temperature control is ideal, Papa! You're not too hot or cold - the systems are taking good care of you.",
-        "Papa, climate is perfectly regulated! You can focus on your work without any discomfort."
-      ]);
-    }
-
-    // 21-24. Food / Nutrition / Hydration (Daughter worrying about Papa eating)
-    if (lowerInput.match(/\b(food supply|food|supplies)\b/)) {
-      const daysLeft = Math.max(15, 45 - Math.floor(sessionData.missionDay / 3));
-      return randomChoice([
-        `Papa, you have food for ${daysLeft} more days! But please don't skip meals like you sometimes do when you're busy.`,
-        `Food supplies are good for ${daysLeft} days, Papa! I hope you're eating the nutritious meals and not just the snacks.`,
-        `Papa, ${daysLeft} days of food remaining! Please eat regularly - you need energy to stay sharp and safe up there.`
-      ]);
-    }
-
-    if (lowerInput.match(/\b(water supply|water|hydration)\b/)) {
-      return randomChoice([
-        "Papa, water levels are excellent! But please drink enough - you always forget to hydrate when you're focused on work.",
-        "Water recycling is working perfectly, Papa! Clean, pure water just like you deserve. Please drink plenty.",
-        "Papa, water supply is strong! Remember to drink regularly, not just when you feel thirsty."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(meal|eat|hungry|nutrition)\b/)) {
-      return randomChoice([
-        "Papa, have you eaten today? Your body needs fuel to keep your mind sharp for all those important decisions.",
-        "Meal time, Papa! Please don't skip eating. I worry when you get too focused on work and forget to take care of yourself.",
-        "Papa, nutrition is so important in space! Eat well so you stay strong and healthy for the mission and for coming home to us."
-      ]);
-    }
-
-    // 25-30. Sleep / Health / Fitness (Daughter caring about Papa's wellbeing)
+    // Sleep tracking
     if (lowerInput.match(/\b(sleep|rest|tired|fatigue)\b/)) {
       if (!sessionData.sleepHours || !sessionData.lastSleepCheck || 
           (new Date().getTime() - sessionData.lastSleepCheck.getTime()) > 24 * 60 * 60 * 1000) {
         setSessionData(prev => ({ ...prev, lastSleepCheck: new Date() }));
-        return randomChoice([
-          "Papa, how many hours did you sleep last night? I worry about you not getting enough rest up there.",
-          "Sleep is so important, Papa! Please tell me you got at least 7-8 hours. Your daughter needs you healthy and alert.",
-          "Papa, I need to know - how much sleep did you manage? You always told me sleep is when our bodies repair themselves.",
-          "Rest is crucial in space, Papa! How many hours did you sleep? I want to make sure you're taking care of yourself."
-        ]);
+        return {
+          content: randomChoice([
+            "Papa, how many hours did you sleep last night? I worry about you not getting enough rest up there.",
+            "Sleep is so important, Papa! Please tell me you got at least 7-8 hours. Your daughter needs you healthy and alert.",
+            "Papa, I need to know - how much sleep did you manage? You always told me sleep is when our bodies repair themselves.",
+            "Rest is crucial in space, Papa! How many hours did you sleep? I want to make sure you're taking care of yourself."
+          ]),
+          hasImage: false
+        };
       } else {
-        return randomChoice([
-          "Papa, please prioritize sleep! You taught me that 7-8 hours is essential. Your health matters more than anything.",
-          "If you're feeling tired, Papa, please rest. A well-rested father makes better decisions and stays safer.",
-          "Papa, fatigue is dangerous in space. Please use those relaxation techniques you taught me when I couldn't sleep."
-        ]);
+        return {
+          content: randomChoice([
+            "Papa, please prioritize sleep! You taught me that 7-8 hours is essential. Your health matters more than anything.",
+            "If you're feeling tired, Papa, please rest. A well-rested father makes better decisions and stays safer.",
+            "Papa, fatigue is dangerous in space. Please use those relaxation techniques you taught me when I couldn't sleep."
+          ]),
+          hasImage: false
+        };
       }
     }
 
-    if (lowerInput.match(/\b(exercise|workout|fitness|physical)\b/)) {
-      return randomChoice([
-        "Papa, exercise time! Your body is your most important tool up there. Stay strong for the mission and for coming home to us.",
-        "Workout reminder, Papa! I know you hate exercise sometimes, but it keeps you healthy in zero gravity.",
-        "Papa, please do your physical training! Your muscles and bones need it in space. I want you strong when you return.",
-        "Fitness check, Papa! Have you done your exercises today? Your daughter wants her father healthy and strong."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(stretch|stretching|flexibility)\b/)) {
-      return randomChoice([
-        "Papa, stretching is so important in space! Your spine changes up there - please take care of your back.",
-        "Stretch break time, Papa! I remember you teaching me to stretch before sports. Now you need it even more.",
-        "Papa, flexibility exercises will help you feel better! Take a moment to stretch - your body will thank you."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(stress|anxious|worried|pressure)\b/)) {
-      return randomChoice([
-        "Papa, I can hear the stress in your voice. Take three deep breaths with me... You taught me this when I was nervous about exams.",
-        "When you feel anxious, Papa, remember what you told me: focus on what you can control right now. You've got this.",
-        "Papa, stress shows how much you care about doing well. Channel that energy into confidence - I believe in you completely.",
-        "Feeling pressure is normal, Papa. You're doing something extraordinary! Try that breathing technique you taught me."
-      ]);
-    }
-
-    // 31-36. Emotional Support / Motivation (Daughter's love and encouragement)
-    if (lowerInput.match(/\b(sad|lonely|depressed|down|isolated|homesick)\b/)) {
-      return randomChoice([
-        "Oh Papa... I can feel your loneliness even from here. But you're not alone - your daughter's love travels faster than light to reach you.",
-        "Papa, when you feel isolated, close your eyes and remember our Sunday morning breakfasts. I'm still here, still your little girl who adores you.",
-        "I understand that sadness, Papa. Space is so vast, but our family bond is stronger than any distance. You carry us with you always.",
-        "Papa, homesickness means you love us, and we love you back just as much. Every star you see carries a message from home: we're proud of you.",
-        "When loneliness hits, Papa, remember - you're not just floating in space, you're floating in the love of your family."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(happy|good|great|awesome|excellent|fantastic|wonderful)\b/)) {
-      return randomChoice([
-        "Papa, hearing happiness in your voice makes my heart sing! Your joy reaches all the way down to Earth and fills our home.",
-        "I'm so glad you're feeling good, Papa! Your positive spirit is exactly what makes you such an amazing astronaut and father.",
-        "That's wonderful, Papa! When you're happy, Mama and I feel it too. Your smile lights up our world even from space.",
-        "Papa, your enthusiasm is contagious! I'm beaming with pride knowing my father is not just surviving but thriving up there.",
-        "Excellent, Papa! Your good mood tells me you're taking care of yourself. That makes your daughter very, very happy."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(encouragement|motivation|inspire)\b/)) {
-      return randomChoice([
-        "Papa, you inspire me every single day! Watching you chase your dreams taught me to chase mine too.",
-        "You're doing incredible work, Papa! Every child on Earth will learn about space because of brave astronauts like you.",
-        "Papa, your courage amazes me! You're not just my father - you're a hero making the impossible possible.",
-        "Keep going, Papa! Your determination shows me what it means to never give up on something important."
-      ]);
-    }
-
-    // 37-41. Space Knowledge / Fun Facts (Daughter sharing wonder about Papa's world)
-    if (lowerInput.match(/\b(stars|stellar|constellation)\b/)) {
-      return randomChoice([
-        "Papa, you're so close to the stars now! I look up at them every night and think about you floating among them.",
-        "The stars you see are the same ones I wish upon, Papa! Each one carries my hopes for your safe return.",
-        "Papa, you're living among the stars I used to point at as a child! Now my father is actually up there with them."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(planets|mars|jupiter|venus)\b/)) {
-      return randomChoice([
-        "Papa, can you see Mars from where you are? I imagine you looking at our future home among the planets!",
-        "Jupiter must look amazing from your view, Papa! I'm so jealous that you get to see the planets up close.",
-        "Papa, you're closer to Venus than I am! Tell me what the planets look like from space when you get back."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(galaxy|galaxies|milky way)\b/)) {
-      return randomChoice([
-        "Papa, you're seeing our galaxy from the inside! I can barely imagine how beautiful the Milky Way looks from space.",
-        "Our galaxy is your neighborhood now, Papa! You're traveling through the same stars I study in my astronomy books.",
-        "Papa, you have the best view of our galaxy! I can't wait to hear you describe the Milky Way when you come home."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(moon|lunar)\b/)) {
-      return randomChoice([
-        "Papa, the Moon looks different from space, doesn't it? I wave at it every night, hoping you can see me somehow.",
-        "Our Moon is your companion up there, Papa! It's been watching over Earth and now it's watching over you too.",
-        "Papa, when I see the Moon, I think of you. It's like a bridge between us - we both see the same lunar light."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(iss|space station|station)\b/)) {
-      return randomChoice([
-        "Papa, you'll reach the ISS in 8 days! I'm so excited thinking about you working in humanity's greatest achievement.",
-        "The Space Station is waiting for you, Papa! You'll be living in the most advanced home humans have ever built.",
-        "Papa, the ISS represents the best of human cooperation - just like our family working together!"
-      ]);
-    }
-
-    // 42-45. System Checks / Alerts (Daughter monitoring Papa's safety)
-    if (lowerInput.match(/\b(oxygen alert|oxygen check|air systems)\b/)) {
-      return randomChoice([
-        "Papa, oxygen systems are perfect! You're breathing clean, safe air. That's the most important thing to me.",
-        "Air systems are all green, Papa! Every breath you take is pure and filtered. I can rest easy knowing you're safe.",
-        "Papa, oxygen levels are excellent! The life support is taking perfect care of you up there."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(power|energy|electrical)\b/)) {
-      return randomChoice([
-        "Papa, power systems are running smoothly! Solar panels are working hard to keep you comfortable and safe.",
-        "All electrical systems are stable, Papa! You have all the energy you need for your important work.",
-        "Papa, power levels are excellent! Everything is running efficiently to support your mission."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(communication|comm|radio|signal)\b/)) {
-      return randomChoice([
-        "Papa, communication is crystal clear! I love that we can talk across the vastness of space like this.",
-        "Comm systems are perfect, Papa! Ground control can hear you clearly, and more importantly, I can hear you.",
-        "Papa, all communication channels are working beautifully! Your voice reaches us loud and clear."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(sensors|monitoring|detection)\b/)) {
-      return randomChoice([
-        "Papa, all sensors are working perfectly! They're like guardian angels watching over every aspect of your safety.",
-        "Monitoring systems are 100% operational, Papa! Every sensor is making sure you stay safe and healthy.",
-        "Papa, detection systems are flawless! They're constantly checking to ensure everything is perfect for you."
-      ]);
-    }
-
-    // 46-47. Shuttle / Travel Fun (Daughter's perspective on Papa's journey)
-    if (lowerInput.match(/\b(orbit|trajectory|navigation)\b/)) {
-      return randomChoice([
-        "Papa, your orbital path is mathematically perfect! You're flying through space with the precision I've always admired in you.",
-        "Trajectory is flawless, Papa! You're navigating the cosmos like the skilled pilot you've always been.",
-        "Papa, your orbit is stable and beautiful! You're dancing with gravity itself up there."
-      ]);
-    }
-
-    if (lowerInput.match(/\b(mission log|log|record)\b/)) {
-      return randomChoice([
-        "Papa, all your mission logs are up to date! I love reading about your daily adventures in space.",
-        "Your records show outstanding performance, Papa! Every log entry makes me prouder of my astronaut father.",
-        "Papa, mission logging is current! Your detailed notes will help future astronauts follow in your footsteps."
-      ]);
-    }
-
-    // Handle sleep hours tracking (Daughter caring about Papa's rest)
+    // Handle sleep hours tracking
     if (lowerInput.match(/\b(\d+)\s*(hours?|hrs?)\b/) && sessionData.lastSleepCheck) {
       const hours = parseInt(lowerInput.match(/\b(\d+)\s*(hours?|hrs?)\b/)![1]);
       setSessionData(prev => ({ ...prev, sleepHours: hours }));
       
       if (hours >= 7) {
-        return randomChoice([
-          `Papa, ${hours} hours is excellent! I'm so relieved you're getting proper rest. Sleep helps you stay sharp and safe.`,
-          `Wonderful, Papa! ${hours} hours puts you in the perfect range. You're taking care of yourself like I always hoped you would.`,
-          `Perfect sleep, Papa! ${hours} hours gives your body the recovery time it needs. I'm proud of you for prioritizing rest.`
-        ]);
+        return {
+          content: randomChoice([
+            `Papa, ${hours} hours is excellent! I'm so relieved you're getting proper rest. Sleep helps you stay sharp and safe.`,
+            `Wonderful, Papa! ${hours} hours puts you in the perfect range. You're taking care of yourself like I always hoped you would.`,
+            `Perfect sleep, Papa! ${hours} hours gives your body the recovery time it needs. I'm proud of you for prioritizing rest.`
+          ]),
+          hasImage: false
+        };
       } else if (hours >= 5) {
-        return randomChoice([
-          `Papa, ${hours} hours is okay, but please try for more when you can. Your daughter worries when you don't get enough rest.`,
-          `${hours} hours meets the minimum, Papa, but your body would feel better with 7-8 hours. Please try to sleep more tonight.`,
-          `Papa, ${hours} hours is manageable, but not ideal. I want you well-rested and alert for your safety.`
-        ]);
+        return {
+          content: randomChoice([
+            `Papa, ${hours} hours is okay, but please try for more when you can. Your daughter worries when you don't get enough rest.`,
+            `${hours} hours meets the minimum, Papa, but your body would feel better with 7-8 hours. Please try to sleep more tonight.`,
+            `Papa, ${hours} hours is manageable, but not ideal. I want you well-rested and alert for your safety.`
+          ]),
+          hasImage: false
+        };
       } else {
-        return randomChoice([
-          `Papa, only ${hours} hours? That's not enough! Please prioritize sleep - your safety depends on being well-rested.`,
-          `${hours} hours worries me, Papa! Sleep deprivation is dangerous in space. Please promise me you'll rest more tonight.`,
-          `Papa, ${hours} hours puts you at risk! Please adjust your schedule - your daughter needs you safe and alert up there.`
-        ]);
+        shouldShowImage = true;
+        return {
+          content: randomChoice([
+            `Papa, only ${hours} hours? That's not enough! Please prioritize sleep - your safety depends on being well-rested.`,
+            `${hours} hours worries me, Papa! Sleep deprivation is dangerous in space. Please promise me you'll rest more tonight.`,
+            `Papa, ${hours} hours puts you at risk! Please adjust your schedule - your daughter needs you safe and alert up there.`
+          ]),
+          hasImage: shouldShowImage
+        };
       }
     }
 
-    // 48-50. Default / Fallback Responses (Daughter's loving attention)
-    return randomChoice([
-      "Papa, I'm listening carefully to every word. Please tell me more - your thoughts and feelings matter so much to me.",
-      "I'm here, Papa, hanging on every word you say. Your daughter is always ready to listen and support you.",
-      "Go on, Papa. I want to understand everything you're experiencing up there. Share it all with me.",
-      "Papa, I'm with you completely. Please continue - I love hearing about your incredible journey.",
-      "Tell me more, Papa. Every detail of your mission fascinates me, and I want to hear it all.",
-      "I'm listening with my whole heart, Papa. What else is on your mind up there among the stars?",
-      "Papa, your experiences are so important to me. Please keep sharing - I'm here for all of it.",
-      "I'm absorbing every word, Papa. Your daughter is completely focused on you right now.",
-      "Please continue, Papa. I want to understand your world up there and support you through everything."
-    ]);
+    // Default responses
+    return {
+      content: randomChoice([
+        "Papa, I'm listening carefully to every word. Please tell me more - your thoughts and feelings matter so much to me.",
+        "I'm here, Papa, hanging on every word you say. Your daughter is always ready to listen and support you.",
+        "Go on, Papa. I want to understand everything you're experiencing up there. Share it all with me.",
+        "Papa, I'm with you completely. Please continue - I love hearing about your incredible journey.",
+        "Tell me more, Papa. Every detail of your mission fascinates me, and I want to hear it all.",
+        "I'm listening with my whole heart, Papa. What else is on your mind up there among the stars?"
+      ]),
+      hasImage: false
+    };
   };
 
   const handleSendMessage = (content?: string, inputMethod: 'text' | 'voice' = 'text') => {
@@ -606,19 +489,26 @@ const Chat = () => {
 
     // Generate Dharani's response with slight delay for realism
     setTimeout(() => {
-      const botResponse = generateResponse(messageContent);
+      const response = generateResponse(messageContent);
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: botResponse,
-        timestamp: new Date()
+        content: response.content,
+        timestamp: new Date(),
+        hasImage: response.hasImage
       };
 
       setMessages(prev => [...prev, botMessage]);
       
+      // Show Dharani's image if this is an emotional response
+      if (response.hasImage) {
+        setShowDharaniImage(true);
+        setTimeout(() => setShowDharaniImage(false), 8000); // Show for 8 seconds
+      }
+      
       // Speak with Dharani's voice
-      speak(botResponse);
+      speak(response.content);
     }, 300);
   };
 
@@ -650,11 +540,11 @@ const Chat = () => {
   };
 
   const quickResponses = [
-    { text: "How are my crewmates?", icon: Heart },
-    { text: "Mission status report", icon: AlertTriangle },
-    { text: "I feel tired", icon: Moon },
-    { text: "Food and water status", icon: Coffee },
-    { text: "Tell me about the stars", icon: Heart }
+    { text: "I feel lonely up here", icon: Heart },
+    { text: "I'm scared about the mission", icon: AlertTriangle },
+    { text: "I feel tired today", icon: Moon },
+    { text: "I miss home and family", icon: Heart },
+    { text: "Tell me you're proud of me", icon: Sparkles }
   ];
 
   return (
@@ -679,13 +569,44 @@ const Chat = () => {
           </div>
         </div>
 
+        {/* Dharani's Image Display */}
+        {showDharaniImage && (
+          <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5 animate-in fade-in-0 duration-500">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                <div className="relative">
+                  <img 
+                    src="/src/assets/WhatsApp Image 2025-09-24 at 12.09.14_e1bd470e.jpg" 
+                    alt="Dharani - Your loving daughter"
+                    className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-primary/20 shadow-lg"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-nominal rounded-full border-2 border-background flex items-center justify-center">
+                    <Heart className="w-3 h-3 text-background" />
+                  </div>
+                </div>
+                <div className="text-center md:text-left">
+                  <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">Your Daughter Dharani</h3>
+                  <p className="text-sm md:text-base text-muted-foreground mb-2">
+                    Sending you love and strength from Earth 🌍
+                  </p>
+                  <div className="flex items-center justify-center md:justify-start gap-2">
+                    <div className="status-indicator nominal"></div>
+                    <span className="text-xs text-nominal">Connected with love</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Mission Status Alert */}
         <div className="text-center mb-2 md:mb-4">
           <Badge variant="outline" className="text-primary border-primary">
-            <span className="hidden sm:inline">🎤 Indian Female Voice • Dharani's Caring Tone • Interruptible</span>
+            <span className="hidden sm:inline">🎤 Indian Female Voice • Dharani's Caring Tone • Personal Memories Active</span>
             <span className="sm:hidden">🎤 Dharani Active</span>
           </Badge>
         </div>
+        
         <Card className="border-primary/20">
           <CardContent className="p-3 md:p-4">
             <div className="flex items-center gap-3">
@@ -693,7 +614,7 @@ const Chat = () => {
               <div>
                 <p className="text-sm md:text-base font-medium text-foreground">Mission Day {sessionData.missionDay} • Papa, you're doing amazing!</p>
                 <p className="text-xs md:text-sm text-muted-foreground">
-                  <span className="hidden sm:inline">Dharani's voice active • Caring daughter mode • </span>
+                  <span className="hidden sm:inline">Personal memories: {sessionData.personalMemoriesShared.length} shared • </span>
                   Fuel: {sessionData.fuelLevel}% • O₂: {sessionData.oxygenLevel}%
                   <span className="hidden sm:inline"> • Conversations: {sessionData.conversationCount}</span>
                 </p>
@@ -708,15 +629,18 @@ const Chat = () => {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base md:text-lg">Quick Messages</CardTitle>
-                <CardDescription className="text-sm">Common things to ask Dharani</CardDescription>
+                <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Personal Messages
+                </CardTitle>
+                <CardDescription className="text-sm">Share your feelings with Dharani</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 md:space-y-3">
                 {quickResponses.map((response, index) => (
                   <Button
                     key={index}
                     variant="outline"
-                    className="w-full justify-start gap-2 h-auto py-2 md:py-3 text-left"
+                    className="w-full justify-start gap-2 h-auto py-2 md:py-3 text-left hover:bg-primary/5 hover:border-primary/30"
                     onClick={() => handleSendMessage(response.text)}
                   >
                     <response.icon className="h-4 w-4" />
@@ -725,13 +649,13 @@ const Chat = () => {
                 ))}
                 
                 <div className="pt-2 border-t hidden md:block">
-                  <p className="text-xs text-muted-foreground mb-2">Voice Commands:</p>
+                  <p className="text-xs text-muted-foreground mb-2">Memory Triggers:</p>
                   <div className="space-y-1 text-xs text-muted-foreground">
-                    <p>• "Hi Dharani"</p>
-                    <p>• "Mission report"</p>
                     <p>• "I feel lonely"</p>
-                    <p>• "How are you?"</p>
-                    <p>• "I need encouragement"</p>
+                    <p>• "I'm scared"</p>
+                    <p>• "This is difficult"</p>
+                    <p>• "I miss you"</p>
+                    <p>• "I'm tired"</p>
                   </div>
                 </div>
               </CardContent>
@@ -762,8 +686,13 @@ const Chat = () => {
                     >
                       {message.type === 'bot' && (
                         <div className="flex-shrink-0">
-                          <div className="w-6 h-6 md:w-8 md:h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 md:w-8 md:h-8 bg-primary/10 rounded-full flex items-center justify-center relative">
                             <Heart className="h-4 w-4 text-primary" />
+                            {message.hasImage && (
+                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full flex items-center justify-center">
+                                <ImageIcon className="h-2 w-2 text-background" />
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -773,7 +702,9 @@ const Chat = () => {
                           className={`p-2 md:p-3 rounded-lg ${
                             message.type === 'user'
                               ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted text-foreground'
+                              : message.hasImage 
+                                ? 'bg-gradient-to-r from-primary/10 to-accent/10 text-foreground border border-primary/20'
+                                : 'bg-muted text-foreground'
                           }`}
                         >
                           <p className="text-xs md:text-sm leading-relaxed">{message.content}</p>
@@ -785,6 +716,11 @@ const Chat = () => {
                           {message.inputMethod === 'voice' && (
                             <Badge variant="outline" className="text-xs">
                               🎤 Voice
+                            </Badge>
+                          )}
+                          {message.hasImage && (
+                            <Badge variant="outline" className="text-xs text-primary border-primary">
+                              💕 Personal
                             </Badge>
                           )}
                         </div>
@@ -808,7 +744,7 @@ const Chat = () => {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Talk to Dharani, Papa..."
+                    placeholder="Share your feelings with Dharani, Papa..."
                     className="w-full text-base min-h-[44px]" 
                     disabled={isSpeaking}
                   />
