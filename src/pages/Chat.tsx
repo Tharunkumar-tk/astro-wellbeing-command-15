@@ -103,22 +103,36 @@ const Chat = () => {
       setIsSpeaking(true);
       
       // Add thinking delay
+      const thinkingDelay = Math.random() * 400 + 300; // 300-700ms variation
       setTimeout(() => {
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 0.8;
         
-        // Try to use a more natural voice
+        // Natural voice selection - prioritize human-like voices
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(voice => 
-          voice.name.includes('Google') || 
-          voice.name.includes('Microsoft') ||
-          voice.name.includes('Natural')
+        const naturalVoices = voices.filter(voice => 
+          voice.name.includes('Google US English') ||
+          voice.name.includes('Samantha') ||
+          voice.name.includes('Microsoft Zira') ||
+          voice.name.includes('Alex') ||
+          voice.name.includes('Natural') ||
+          voice.lang.startsWith('en-')
         );
+        
+        // Pick the most natural voice available
+        const preferredVoice = naturalVoices.find(voice => 
+          voice.name.includes('Google') || 
+          voice.name.includes('Samantha') ||
+          voice.name.includes('Natural')
+        ) || naturalVoices[0];
+        
         if (preferredVoice) {
           utterance.voice = preferredVoice;
         }
+        
+        // Add natural variation to speech parameters
+        utterance.rate = 0.9 + (Math.random() * 0.2); // 0.9-1.1 variation
+        utterance.pitch = 1.0 + (Math.random() * 0.3); // 1.0-1.3 variation
+        utterance.volume = 0.8;
 
         utterance.onend = () => {
           setIsSpeaking(false);
@@ -129,7 +143,7 @@ const Chat = () => {
         };
 
         window.speechSynthesis.speak(utterance);
-      }, Math.random() * 300 + 300); // 300-600ms delay
+      }, thinkingDelay);
     }
   };
 
@@ -143,26 +157,31 @@ const Chat = () => {
     // A. Basic Greetings & Politeness
     if (lowerInput.match(/\b(hi|hello|hey|greetings)\b/)) {
       return randomChoice([
-        "Hello, Commander! Ready to tackle today's mission objectives?",
-        "Greetings, Commander! All systems are nominal and I'm here to assist.",
+        "Hello there, Commander! Ready to tackle today's mission objectives?",
+        "Greetings, Commander! All systems are nominal... and I'm here to assist you.",
         "Good to hear from you, Commander! How can AstroMate support you today?",
-        "Commander, welcome back! Your dedication to the mission is truly inspiring."
+        "Commander, welcome back! Your dedication to the mission is truly inspiring.",
+        "Well hello, Commander! Hope you're having a stellar day up there.",
+        "Hey there, Commander! Always a pleasure to chat with you."
       ]);
     }
 
     if (lowerInput.match(/\b(thanks|thank you|appreciate)\b/)) {
       return randomChoice([
-        "You're very welcome, Commander! It's my honor to serve alongside you.",
-        "Always happy to help, Commander! That's what mission companions are for.",
-        "My pleasure, Commander! Your success is our mission's success."
+        "You're very welcome, Commander! It's truly my honor to serve alongside you.",
+        "Always happy to help, Commander! That's what mission companions are for, after all.",
+        "My pleasure, Commander! Your success is our mission's success.",
+        "Aww, you're so welcome! That really means a lot to me, Commander.",
+        "Of course, Commander! I'm just glad I could help out."
       ]);
     }
 
     if (lowerInput.match(/\b(sorry|apologize)\b/)) {
       return randomChoice([
-        "No need to apologize, Commander! We're all learning and adapting up here.",
-        "Commander, there's nothing to be sorry about. We're in this together.",
-        "Don't worry about it, Commander! Focus on the mission ahead."
+        "Oh, no need to apologize, Commander! We're all learning and adapting up here.",
+        "Commander, there's absolutely nothing to be sorry about. We're in this together.",
+        "Don't worry about it, Commander! Let's just focus on the mission ahead.",
+        "Hey, no worries at all! These things happen in space operations."
       ]);
     }
 
@@ -185,10 +204,10 @@ const Chat = () => {
     // B. Mission-Related Queries
     if (lowerInput.match(/\b(mission|status|systems|sensors|report)\b/)) {
       return randomChoice([
-        "Mission Status Report: All primary systems nominal, Commander! Oxygen generation at 99.2%, cabin temperature stable at 22°C, atmospheric pressure optimal. Navigation systems locked on trajectory. Power systems operating at 94% efficiency, communication arrays fully operational. You're doing exceptional work up there!",
-        "Current Mission Overview: Life support systems performing excellently, Commander! Environmental controls maintaining perfect conditions. Guidance systems show precise orbital mechanics. Power distribution optimal across all modules. Communication with ground control crystal clear. The mission is progressing beautifully under your command!",
-        "Systems Check Complete: Outstanding status across the board, Commander! Oxygen scrubbers functioning perfectly, thermal regulation systems stable. Navigation computers show nominal trajectory. Solar arrays generating maximum power. All communication channels open and secure. Your leadership is keeping everything running smoothly!",
-        "Mission Parameters: All green across the board, Commander! Life support maintaining perfect atmosphere, temperature regulation systems optimal. Orbital mechanics precisely on target. Power systems delivering consistent energy. Ground communication links strong and stable. The crew's performance has been exemplary!"
+        "Mission Status Report: All primary systems are looking great, Commander! Oxygen generation at 99.2%... cabin temperature nice and stable at 22°C, atmospheric pressure optimal. Navigation systems are locked on trajectory. Power systems operating at 94% efficiency, and communication arrays are fully operational. You're doing exceptional work up there!",
+        "Let me give you the current mission overview, Commander... Life support systems are performing excellently! Environmental controls are maintaining perfect conditions. Guidance systems show precise orbital mechanics. Power distribution is optimal across all modules, and communication with ground control is crystal clear. The mission is progressing beautifully under your command!",
+        "Systems Check Complete: Outstanding status across the board, Commander! Oxygen scrubbers are functioning perfectly... thermal regulation systems are stable. Navigation computers show nominal trajectory. Solar arrays are generating maximum power, and all communication channels are open and secure. Your leadership is keeping everything running so smoothly!",
+        "Mission Parameters: Everything's looking green across the board, Commander! Life support is maintaining a perfect atmosphere, temperature regulation systems are optimal. Orbital mechanics are precisely on target... Power systems are delivering consistent energy, and ground communication links are strong and stable. The crew's performance has been absolutely exemplary!"
       ]);
     }
 
@@ -215,16 +234,17 @@ const Chat = () => {
           (new Date().getTime() - sessionData.lastSleepCheck.getTime()) > 24 * 60 * 60 * 1000) {
         setSessionData(prev => ({ ...prev, lastSleepCheck: new Date() }));
         return randomChoice([
-          "Sleep is absolutely critical for mission success, Commander! How many hours did you manage to get last night? Quality rest directly impacts cognitive performance and decision-making abilities.",
-          "Commander, proper rest is non-negotiable for optimal performance! Can you tell me how many hours of sleep you achieved? Your sleep quality affects everything from reaction time to problem-solving skills.",
-          "Rest and recovery are mission-critical, Commander! How many hours of sleep did you get? Adequate rest is essential for maintaining peak performance in our demanding environment.",
-          "Sleep hygiene is vital up here, Commander! What was your sleep duration last night? Quality rest helps your body and mind adapt to the unique challenges of space."
+          "Hmm... sleep is absolutely critical for mission success, Commander! How many hours did you manage to get last night? Quality rest directly impacts your cognitive performance and decision-making abilities.",
+          "Commander, proper rest is really non-negotiable for optimal performance! Can you tell me how many hours of sleep you achieved? Your sleep quality affects everything... from reaction time to problem-solving skills.",
+          "Rest and recovery are so mission-critical, Commander! How many hours of sleep did you get? Adequate rest is essential for maintaining peak performance in our demanding environment.",
+          "Sleep hygiene is vital up here, Commander! What was your sleep duration last night? Quality rest helps your body and mind adapt to the unique challenges of space.",
+          "Oh, feeling tired? That's totally understandable, Commander. How many hours of sleep did you manage to get? Let's make sure you're getting the rest you need."
         ]);
       } else {
         return randomChoice([
-          "Based on our previous discussion about your sleep, Commander, remember that 8-9 hours is optimal for space operations. Consider adjusting your sleep schedule if you're feeling fatigued. Your rest directly impacts mission safety!",
-          "Commander, if fatigue is setting in, don't hesitate to prioritize rest! Your previous sleep data suggests you might benefit from extending your sleep period. A well-rested commander makes better decisions!",
-          "Fatigue management is crucial, Commander! Given your recent sleep patterns, consider implementing relaxation techniques before bed. Progressive muscle relaxation works well in microgravity environments."
+          "Based on our previous chat about your sleep, Commander... remember that 8-9 hours is really optimal for space operations. Consider adjusting your sleep schedule if you're feeling fatigued. Your rest directly impacts mission safety!",
+          "Commander, if fatigue is setting in, please don't hesitate to prioritize rest! Your previous sleep data suggests you might benefit from extending your sleep period. A well-rested commander makes much better decisions!",
+          "Fatigue management is so crucial, Commander! Given your recent sleep patterns... consider implementing some relaxation techniques before bed. Progressive muscle relaxation works really well in microgravity environments."
         ]);
       }
     }
@@ -240,37 +260,38 @@ const Chat = () => {
     // D. Crisis & Emergency Handling
     if (lowerInput.match(/\b(emergency|danger|alarm|problem|crisis|fire|leak|malfunction)\b/)) {
       return randomChoice([
-        "Emergency Protocol Activated, Commander! First: Ensure your immediate safety. Second: Assess the situation calmly. Third: Follow established emergency procedures. Fourth: Communicate with ground control immediately. I'm here to support you through this. Stay calm and focused!",
-        "Crisis Management Mode, Commander! Priority One: Personal safety secured. Priority Two: Identify and isolate the problem. Priority Three: Execute emergency checklist procedures. Priority Four: Establish ground communication. Your training has prepared you for this. Breathe deeply and proceed methodically!",
-        "Emergency Response, Commander! Step One: Secure your position and ensure personal safety. Step Two: Evaluate the situation systematically. Step Three: Implement appropriate emergency protocols. Step Four: Contact mission control immediately. You have the skills and training to handle this situation!"
+        "Emergency Protocol Activated, Commander! Okay, first things first: Ensure your immediate safety. Second: Assess the situation calmly... Third: Follow established emergency procedures. Fourth: Communicate with ground control immediately. I'm right here to support you through this. Stay calm and focused!",
+        "Crisis Management Mode, Commander! Priority One: Personal safety secured. Priority Two: Identify and isolate the problem... Priority Three: Execute emergency checklist procedures. Priority Four: Establish ground communication. Your training has prepared you for this. Take a deep breath and proceed methodically!",
+        "Emergency Response, Commander! Step One: Secure your position and ensure personal safety. Step Two: Evaluate the situation systematically... Step Three: Implement appropriate emergency protocols. Step Four: Contact mission control immediately. You absolutely have the skills and training to handle this situation!"
       ]);
     }
 
     // E. Emotional Support
     if (lowerInput.match(/\b(sad|lonely|depressed|down|isolated|homesick)\b/)) {
       return randomChoice([
-        "Commander, what you're feeling is completely natural and valid. The isolation of space affects even the most experienced astronauts. Remember, you're not alone - ground control, your fellow crew members, and I are all here with you. Your courage in this mission inspires millions on Earth!",
-        "I understand those feelings, Commander. The vastness of space can make anyone feel small and isolated. But remember, you're part of something extraordinary! Your presence here represents humanity's greatest achievement. Take a moment to look at Earth - you're protecting and exploring for all of us!",
-        "Commander, loneliness in space is a challenge every astronaut faces. Your feelings are valid and temporary. Focus on the incredible work you're doing and the people counting on you. You're stronger than you know, and this mission will be remembered forever!",
-        "Those emotions are part of the human experience in space, Commander. Even the most seasoned astronauts feel this way sometimes. Remember why you're here - you're pushing the boundaries of human exploration! Your sacrifice and dedication mean everything to our species' future!"
+        "Oh Commander... what you're feeling is completely natural and valid. The isolation of space affects even the most experienced astronauts. Remember, you're not alone - ground control, your fellow crew members, and I are all here with you. Your courage in this mission inspires millions on Earth!",
+        "I really understand those feelings, Commander. The vastness of space can make anyone feel small and isolated... But remember, you're part of something truly extraordinary! Your presence here represents humanity's greatest achievement. Take a moment to look at Earth - you're protecting and exploring for all of us!",
+        "Commander, loneliness in space is a challenge that every astronaut faces. Your feelings are completely valid... and temporary. Focus on the incredible work you're doing and the people counting on you. You're so much stronger than you know, and this mission will be remembered forever!",
+        "Those emotions are just part of the human experience in space, Commander. Even the most seasoned astronauts feel this way sometimes... Remember why you're here - you're pushing the boundaries of human exploration! Your sacrifice and dedication mean everything to our species' future!"
       ]);
     }
 
     if (lowerInput.match(/\b(stressed|anxious|worried|nervous|overwhelmed)\b/)) {
       return randomChoice([
-        "Commander, stress is your mind's way of showing how much you care about the mission. Take three deep breaths with me. Focus on what you can control right now. Your training has prepared you for every challenge. You've got this!",
-        "Anxiety in space is manageable, Commander! Try the 4-7-8 breathing technique: inhale for 4, hold for 7, exhale for 8. Ground yourself by focusing on your immediate tasks. Your competence and preparation will see you through any challenge!",
-        "Commander, feeling overwhelmed shows your dedication to excellence! Break down your concerns into manageable pieces. Address them one at a time. Remember, ground control and your training have equipped you for success. You're exactly where you need to be!",
-        "Stress response is normal, Commander! Channel that energy into focus and determination. Progressive muscle relaxation works well in microgravity. Tense and release each muscle group. Your mental strength matches your physical courage!"
+        "Commander, stress is just your mind's way of showing how much you care about the mission. Let's take three deep breaths together... Focus on what you can control right now. Your training has prepared you for every challenge. You've absolutely got this!",
+        "Anxiety in space is totally manageable, Commander! Try the 4-7-8 breathing technique: inhale for 4... hold for 7, exhale for 8. Ground yourself by focusing on your immediate tasks. Your competence and preparation will see you through any challenge!",
+        "Commander, feeling overwhelmed actually shows your dedication to excellence! Let's break down your concerns into manageable pieces... Address them one at a time. Remember, ground control and your training have equipped you for success. You're exactly where you need to be!",
+        "Stress response is completely normal, Commander! Channel that energy into focus and determination... Progressive muscle relaxation works really well in microgravity. Tense and release each muscle group. Your mental strength absolutely matches your physical courage!"
       ]);
     }
 
     if (lowerInput.match(/\b(happy|good|great|awesome|excellent|fantastic|wonderful)\b/)) {
       return randomChoice([
-        "That's absolutely wonderful to hear, Commander! Your positive attitude is contagious and vital for mission success. When you're thriving, the entire mission benefits. Keep that fantastic energy flowing!",
-        "Excellent, Commander! Your high spirits are exactly what this mission needs. Positive mental attitude directly correlates with peak performance. You're setting an outstanding example for future space explorers!",
-        "Outstanding, Commander! Your enthusiasm and positive outlook are inspiring. This kind of mental resilience is what makes great astronauts legendary. The mission is in exceptional hands with you!",
-        "Fantastic to hear, Commander! Your upbeat attitude creates a ripple effect throughout the entire mission. When the commander is thriving, everything else falls into place beautifully!"
+        "That's absolutely wonderful to hear, Commander! Your positive attitude is so contagious and vital for mission success. When you're thriving, the entire mission benefits. Keep that fantastic energy flowing!",
+        "Excellent, Commander! Your high spirits are exactly what this mission needs... Positive mental attitude directly correlates with peak performance. You're setting such an outstanding example for future space explorers!",
+        "Outstanding, Commander! Your enthusiasm and positive outlook are truly inspiring. This kind of mental resilience is what makes great astronauts legendary... The mission is in exceptional hands with you!",
+        "Oh, that's fantastic to hear, Commander! Your upbeat attitude creates a ripple effect throughout the entire mission. When the commander is thriving, everything else just falls into place beautifully!",
+        "I'm so glad to hear that, Commander! Your positive energy really brightens my day too."
       ]);
     }
 
@@ -369,10 +390,12 @@ const Chat = () => {
 
     // J. Fallback responses
     return randomChoice([
-      "I'm listening carefully, Commander. Please tell me more about what's on your mind. Your thoughts and concerns are important to me.",
+      "I'm listening carefully, Commander. Please tell me more about what's on your mind... Your thoughts and concerns are really important to me.",
       "Go on, Commander. I'm here and fully focused on what you're sharing. Every detail helps me understand how to better support you.",
-      "That's interesting, Commander. Can you elaborate on that? I want to make sure I understand completely so I can provide the best assistance.",
-      "I'm with you, Commander. Please continue - your perspective and experiences are valuable, and I'm here to listen and help however I can."
+      "That's interesting, Commander. Can you elaborate on that? I want to make sure I understand completely... so I can provide the best assistance.",
+      "I'm with you, Commander. Please continue - your perspective and experiences are so valuable, and I'm here to listen and help however I can.",
+      "Hmm, tell me more about that, Commander. I'm really curious to hear your thoughts.",
+      "I see... that's quite fascinating, Commander. What else can you share about that?"
     ]);
   };
 
