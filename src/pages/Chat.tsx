@@ -44,7 +44,7 @@ const Chat = () => {
     {
       id: '1',
       type: 'bot',
-      content: 'Greetings, Commander! AstroBot here, your dedicated mission companion. You can call me Buddy, Sam, Samantha, or just Bot if you prefer. I\'m here to support your well-being and assist with any mission-related needs. How can I help you today?',
+      content: 'Papa! It\'s me, Dharani. I\'ve been waiting to talk to you. How are you feeling up there among the stars? I know space is vast and sometimes lonely, but remember - your daughter is always with you, even from Earth. Tell me about your day, Papa.',
       timestamp: new Date(Date.now() - 300000)
     }
   ]);
@@ -74,7 +74,7 @@ const Chat = () => {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.lang = 'en-IN'; // Indian English for Dharani
 
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
@@ -91,20 +91,20 @@ const Chat = () => {
     }
   }, []);
 
-  // Get Google Samantha voice or fallback to best female voice
-  const getSamanthaVoice = () => {
+  // Get Indian female voice (Dharani's voice)
+  const getDharaniVoice = () => {
     const voices = window.speechSynthesis.getVoices();
     
-    // Priority order for female voices
+    // Priority order for Indian/warm female voices
     const preferredVoices = [
+      'Google भारतीय', // Hindi Google voice
+      'Microsoft Heera', // Indian English
+      'Google UK English Female',
+      'Google US English Female', 
       'Samantha',
-      'Google UK English Female', 
-      'Google US English Female',
-      'Microsoft Zira',
-      'Microsoft Hazel',
-      'Alex',
       'Karen',
-      'Victoria'
+      'Victoria',
+      'Microsoft Zira'
     ];
     
     // Find the best match
@@ -117,13 +117,14 @@ const Chat = () => {
     const femaleVoice = voices.find(v => 
       v.name.toLowerCase().includes('female') || 
       v.name.toLowerCase().includes('woman') ||
-      ['Samantha', 'Karen', 'Victoria', 'Zira', 'Hazel'].some(name => 
+      ['Samantha', 'Karen', 'Victoria', 'Zira', 'Heera'].some(name => 
         v.name.includes(name)
       )
     );
     
     return femaleVoice || voices[0];
   };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -137,7 +138,7 @@ const Chat = () => {
     return options[Math.floor(Math.random() * options.length)];
   };
 
-  // Enhanced Text-to-Speech with Samantha voice and quick output
+  // Enhanced Text-to-Speech with Dharani's voice
   const speak = (text: string) => {
     if ('speechSynthesis' in window && speechEnabled) {
       // Stop any ongoing speech
@@ -145,24 +146,23 @@ const Chat = () => {
       
       setIsSpeaking(true);
       
-      // Quick output - minimal delay
-      const thinkingDelay = Math.random() * 200 + 100; // 100-300ms variation
+      // Natural daughter's voice timing
+      const thinkingDelay = Math.random() * 300 + 200; // 200-500ms variation
       setTimeout(() => {
-        // Clean text for quick reading
         const cleanText = text.replace(/([.?!])/g, "$1 ");
         
         const utterance = new SpeechSynthesisUtterance(cleanText);
         
-        // Use Samantha voice
-        const selectedVoice = getSamanthaVoice();
+        // Use Dharani's voice
+        const selectedVoice = getDharaniVoice();
         
         if (selectedVoice) {
           utterance.voice = selectedVoice;
         }
         
-        // Quick reading settings
-        utterance.pitch = 1.05; // Natural female pitch
-        utterance.rate = 1.2;   // Fast reading
+        // Warm, caring daughter's voice settings
+        utterance.pitch = 1.1;  // Slightly higher, warmer pitch
+        utterance.rate = 0.95;  // Slightly slower, more caring pace
         utterance.volume = 0.9;
 
         utterance.onend = () => {
@@ -184,407 +184,408 @@ const Chat = () => {
     setIsSpeaking(false);
   };
 
-  // Enhanced rule-based response system with 50+ rules
+  // Dharani's daughterly response system - all from daughter's perspective
   const generateResponse = (input: string): string => {
     const lowerInput = input.toLowerCase();
     
     // Update conversation count
     setSessionData(prev => ({ ...prev, conversationCount: prev.conversationCount + 1 }));
 
-    // 1-4. Greetings & Politeness
+    // 1-4. Greetings & Politeness (Daughter's warmth)
     if (lowerInput.match(/\b(hi|hello|hey|greetings)\b/)) {
       return randomChoice([
-        "Hello there, Commander! Ready to tackle today's mission objectives?",
-        "Greetings, Commander! All systems are nominal… and I'm here to assist you.",
-        "Good to hear from you, Commander! How can your buddy AstroBot support you today?",
-        "Commander, welcome back! Your dedication to the mission is truly inspiring.",
-        "Well hello, Commander! Hope you're having a stellar day up there.",
-        "Hey there, Commander! Always a pleasure to chat with you."
+        "Papa! I'm so happy to hear from you! How are you feeling today? Are you taking care of yourself up there?",
+        "Hello Papa! Your daughter Dharani is here. I've been thinking about you - tell me about your day among the stars.",
+        "Hi Papa! I missed talking to you. Space feels less scary when I know you're safe and strong up there.",
+        "Papa, it's so good to hear your voice! I hope you're eating well and staying healthy for me.",
+        "Hello my brave Papa! Dharani here, ready to listen to everything you want to share.",
+        "Papa! I was waiting for you to call. How's my astronaut father doing today?"
       ]);
     }
 
     if (lowerInput.match(/\b(thanks|thank you|appreciate)\b/)) {
       return randomChoice([
-        "You're very welcome, Commander! It's truly my honor to serve alongside you.",
-        "Always happy to help, Commander! That's what mission companions are for, after all.",
-        "My pleasure, Commander! Your success is our mission's success.",
-        "Aww, you're so welcome! That really means a lot to me, Commander.",
-        "Of course, Commander! I'm just glad I could help out."
+        "Always, Papa! I'm so proud to be your daughter. You taught me to always help family.",
+        "You don't need to thank me, Papa. This is what daughters do - we take care of our fathers.",
+        "Papa, you've given me everything. Now let me give you my support from Earth to space.",
+        "Of course, Papa! Remember when you used to help me with homework? Now I help you with missions.",
+        "That's what family is for, Papa. I love you and I'm always here for you."
       ]);
     }
 
     if (lowerInput.match(/\b(sorry|apologize)\b/)) {
       return randomChoice([
-        "Oh, no need to apologize, Commander! We're all learning and adapting up here.",
-        "Commander, there's absolutely nothing to be sorry about. We're in this together.",
-        "Don't worry about it, Commander! Let's just focus on the mission ahead.",
-        "Hey, no worries at all! These things happen in space operations."
+        "Papa, you don't need to apologize to me. You're doing something incredible up there, and I understand.",
+        "It's okay, Papa. Even the strongest fathers make mistakes. I still love you just the same.",
+        "Don't worry about it, Papa. You taught me that mistakes help us learn and grow stronger.",
+        "Papa, I could never be upset with you. You're my hero, even when things go wrong."
       ]);
     }
 
     if (lowerInput.match(/\b(ok|okay|understood|roger|copy)\b/)) {
       return randomChoice([
-        "Excellent, Commander! Glad we're on the same page.",
-        "Perfect, Commander! Mission coordination at its finest.",
-        "Outstanding, Commander! Clear communication is key to success."
+        "Good, Papa! I'm glad we understand each other. That's how our family has always been.",
+        "Perfect, Papa! Clear communication, just like you taught me when I was little.",
+        "Excellent, Papa! You're still the best teacher, even from space."
       ]);
     }
 
-    // 5-10. Mission Day / Progress
+    // 5-10. Mission Day / Progress (Daughter tracking Papa's journey)
     if (lowerInput.match(/\b(mission day|day|today)\b/)) {
       return randomChoice([
-        `Commander, today is mission day ${sessionData.missionDay}. We're making excellent progress!`,
-        `Mission day ${sessionData.missionDay}, Commander. All systems performing nominally.`,
-        `Day ${sessionData.missionDay} of our incredible journey, Commander. You're doing outstanding work!`
+        `Papa, today is mission day ${sessionData.missionDay}. I've been counting every single day since you left. You're doing amazingly!`,
+        `It's day ${sessionData.missionDay} of your incredible journey, Papa. Mama and I are so proud of how far you've come.`,
+        `Mission day ${sessionData.missionDay}, Papa. Each day brings you closer to completing your dream and coming home to us.`
       ]);
     }
 
     if (lowerInput.match(/\b(days left|remaining|how long)\b/)) {
       const daysLeft = Math.max(1, 200 - sessionData.missionDay);
       return randomChoice([
-        `Approximately ${daysLeft} days remain in our current mission phase, Commander.`,
-        `We have about ${daysLeft} days left, Commander. Time flies when you're exploring space!`,
-        `${daysLeft} days remaining, Commander. Every day brings new discoveries!`
+        `Papa, about ${daysLeft} more days and you'll be home with us! I'm already planning your favorite meal.`,
+        `${daysLeft} days remaining, Papa. I know it feels long, but remember - I'm counting down with you every single day.`,
+        `Just ${daysLeft} more days, Papa! Then you can tell me all your space stories in person.`
       ]);
     }
 
     if (lowerInput.match(/\b(mission progress|progress|status)\b/)) {
       const progress = Math.round((sessionData.missionDay / 200) * 100);
       return randomChoice([
-        `Mission progress is at ${progress}%, Commander. Exceptional performance across all metrics!`,
-        `We are ${progress}% complete with our mission objectives, Commander. Outstanding work!`,
-        `Progress report: ${progress}% mission completion. You're exceeding all expectations, Commander!`
+        `Papa, you're ${progress}% through your mission! I'm so proud of how dedicated and strong you are.`,
+        `Mission progress: ${progress}% complete, Papa. You're exceeding everyone's expectations, especially mine.`,
+        `${progress}% done, Papa! Every percentage point is a step closer to home, closer to your family who loves you.`
       ]);
     }
 
     if (lowerInput.match(/\b(challenge today|problem|issue)\b/)) {
       return randomChoice([
-        "Today we encountered minor solar radiation fluctuations, but our shielding performed perfectly, Commander.",
-        "We had a brief communication delay with ground control earlier, but all systems recovered beautifully.",
-        "Minor micro-meteorite activity detected, but our hull integrity remains at 100%, Commander."
+        "Papa, I heard about the solar radiation today. But you handled it perfectly - you always do. I'm not worried because I trust you.",
+        "The communication delay must have been stressful, Papa. But remember, even when signals are weak, my love reaches you instantly.",
+        "Papa, micro-meteorites sound scary, but you're protected. You taught me that preparation beats fear every time."
       ]);
     }
 
     if (lowerInput.match(/\b(next challenge|tomorrow|upcoming)\b/)) {
       return randomChoice([
-        "Tomorrow we expect routine system maintenance and a possible EVA preparation, Commander.",
-        "Upcoming challenges include orbital adjustment maneuvers and equipment calibration.",
-        "Next phase involves advanced scientific experiments and crew coordination exercises, Commander."
+        "Papa, tomorrow's EVA preparation sounds exciting! I'll be thinking of you floating among the stars.",
+        "The orbital adjustments tomorrow will be routine for someone as skilled as you, Papa. I believe in you completely.",
+        "Papa, those experiments tomorrow will help so many people on Earth. I'm proud my father is making history."
       ]);
     }
 
     if (lowerInput.match(/\b(mission update|update|news)\b/)) {
       return randomChoice([
-        "Mission update: All primary systems are performing nominally. Life support at 99.8% efficiency, Commander!",
-        "Latest update: Navigation systems locked on trajectory, power systems optimal, communication arrays fully operational.",
-        "Mission status: Environmental controls perfect, guidance systems precise, all crew members in excellent health!"
+        "Papa, all your systems are running perfectly! Life support at 99.8% - that means you're breathing well and staying healthy for me.",
+        "Everything looks great, Papa! Navigation locked, power optimal, communications clear. You're in safe hands up there.",
+        "Papa, all systems are green! Environmental controls perfect, which means you're comfortable. That makes me happy."
       ]);
     }
 
-    // 11-14. Crewmates Status
+    // 11-14. Crewmates Status (Daughter caring about Papa's work family)
     if (lowerInput.match(/\b(crewmate|crew|team|alex|sam|sarah)\b/)) {
       return randomChoice([
-        "Crewmate status is excellent, Commander! Alex is monitoring life support, Sarah handling navigation systems.",
-        "All crewmates reported in with no anomalies, Commander. Team morale is exceptionally high!",
-        "Crew check complete: Everyone is healthy, motivated, and performing their duties flawlessly.",
-        "Your team is outstanding, Commander! Each crewmate is contributing brilliantly to mission success."
+        "Papa, your crew family is doing wonderfully! Alex and Sarah speak so highly of your leadership. You make me proud.",
+        "All your crewmates are healthy and motivated, Papa. They look up to you the same way I always have.",
+        "Papa, your team is like a second family up there. I'm glad you have good people taking care of each other.",
+        "Your crew is performing excellently, Papa! They trust your guidance just like I've always trusted your wisdom."
       ]);
     }
 
     if (lowerInput.match(/\b(fatigue check|tired|exhausted)\b/)) {
       return randomChoice([
-        "Fatigue levels are within normal parameters, Commander. Remember, even astronauts need proper rest!",
-        "Some crew members showing mild fatigue, but nothing concerning. Rest cycles are being maintained.",
-        "Fatigue monitoring shows you're pushing hard, Commander. Consider a brief rest period when possible."
+        "Papa, I can hear the tiredness in your voice. Please rest more - you used to tell me that tired minds make mistakes.",
+        "You sound exhausted, Papa. Remember what you taught me: even superheroes need sleep to stay strong.",
+        "Papa, fatigue is showing, but that's normal. You're working so hard. Please take breaks like you made me do during exams."
       ]);
     }
 
     if (lowerInput.match(/\b(morale|motivation|spirit)\b/)) {
       return randomChoice([
-        "Crew morale is exceptionally high, Commander! Everyone is motivated and inspired by your leadership.",
-        "Team spirit is fantastic! The crew believes in the mission and trusts your command completely.",
-        "Morale report: Outstanding! Your crew is energized, focused, and ready for any challenge ahead."
+        "Papa, everyone's spirits are high because of your positive leadership! You inspire them like you've always inspired me.",
+        "Team morale is fantastic, Papa! Your crew believes in the mission because they believe in you, their commander.",
+        "Papa, the team's motivation is through the roof! They see your dedication and it makes them want to give their best too."
       ]);
     }
 
-    // 15-20. Shuttle / Travel / Destination
+    // 15-20. Shuttle / Travel / Destination (Daughter understanding Papa's vehicle)
     if (lowerInput.match(/\b(shuttle status|shuttle|vehicle)\b/)) {
       return randomChoice([
-        "Shuttle systems are all green, Commander! No issues detected across any primary or backup systems.",
-        "Vehicle status nominal: propulsion, navigation, life support, and communication systems all optimal.",
-        "Shuttle performing beautifully, Commander! All diagnostics show perfect operational parameters."
+        "Papa, shuttle Aranya-1 is running beautifully at 94% efficiency! It's taking good care of you, just like our old car used to.",
+        "Your shuttle is performing perfectly, Papa! All systems green. It's like a protective shell keeping my father safe.",
+        "Papa, the vehicle status is excellent! Every system is working to bring you home safely to us."
       ]);
     }
 
     if (lowerInput.match(/\b(shuttle travel|travel|journey)\b/)) {
       return randomChoice([
-        "We will reach the International Space Station in approximately 8 days, Commander.",
-        "Our journey continues smoothly! Next major waypoint in 6 days, all systems tracking perfectly.",
-        "Travel status: On schedule and on trajectory. Estimated arrival at destination right on time!"
+        "Papa, you'll reach the Space Station in 8 days! I'm imagining the amazing view you'll have when you dock.",
+        "The journey continues smoothly, Papa! Every kilometer traveled is progress toward your goals and toward home.",
+        "Papa, your trajectory is perfect! You're flying through space like the skilled pilot you've always been."
       ]);
     }
 
     if (lowerInput.match(/\b(destination|where|going)\b/)) {
       return randomChoice([
-        "Next stop: ISS orbital rendezvous, Commander! Docking procedures will commence in T-minus 8 days.",
-        "Our destination is the International Space Station, where we'll conduct advanced research operations.",
-        "We're heading to ISS orbit for the next phase of our mission, Commander. Exciting times ahead!"
+        "Papa, the International Space Station awaits you! In 8 days, you'll be conducting research that will help all of humanity.",
+        "Your destination is the ISS, Papa! I'm so excited thinking about the important work you'll do there.",
+        "Papa, you're heading to make history at the Space Station! I can't wait to tell everyone my father is up there."
       ]);
     }
 
     if (lowerInput.match(/\b(fuel|propellant)\b/)) {
       return randomChoice([
-        `Fuel levels are at ${sessionData.fuelLevel}%, Commander. Well within safe operational parameters!`,
-        `Propellant status: ${sessionData.fuelLevel}% remaining. Consumption rates are exactly as predicted.`,
-        `Fuel reserves looking good at ${sessionData.fuelLevel}%, Commander. No concerns with current usage patterns.`
+        `Papa, fuel is at ${sessionData.fuelLevel}% - that's plenty to keep you safe and get you where you need to go!`,
+        `Propellant levels look great at ${sessionData.fuelLevel}%, Papa! You're consuming exactly as planned, so efficient.`,
+        `Papa, fuel reserves are strong at ${sessionData.fuelLevel}%! No worries about running low - you planned this perfectly.`
       ]);
     }
 
     if (lowerInput.match(/\b(oxygen|air|breathing)\b/)) {
       return randomChoice([
-        `Oxygen levels are at ${sessionData.oxygenLevel}%, Commander! Scrubbers working perfectly, generation systems nominal.`,
-        `Air quality is excellent! Oxygen at ${sessionData.oxygenLevel}%, CO2 scrubbing optimal, pressure stable.`,
-        `Breathing systems are performing flawlessly, Commander. Oxygen reserves at ${sessionData.oxygenLevel}% and climbing!`
+        `Papa, oxygen is at ${sessionData.oxygenLevel}%! You're breathing clean, fresh air. That makes me feel so much better.`,
+        `Air quality is perfect at ${sessionData.oxygenLevel}%, Papa! Every breath you take is pure and safe.`,
+        `Papa, oxygen systems are working beautifully at ${sessionData.oxygenLevel}%! You're getting the best air possible up there.`
       ]);
     }
 
     if (lowerInput.match(/\b(temperature|temp|climate)\b/)) {
       return randomChoice([
-        "Cabin temperature is perfectly stable at 22°C, Commander. Climate control systems working beautifully!",
-        "Temperature regulation is optimal! Maintaining ideal conditions for crew comfort and equipment operation.",
-        "Thermal management systems are performing excellently, Commander. All zones within perfect parameters!"
+        "Papa, cabin temperature is perfect at 22°C! You're nice and comfortable, just like you like it at home.",
+        "Temperature control is ideal, Papa! You're not too hot or cold - the systems are taking good care of you.",
+        "Papa, climate is perfectly regulated! You can focus on your work without any discomfort."
       ]);
     }
 
-    // 21-24. Food / Nutrition / Hydration
+    // 21-24. Food / Nutrition / Hydration (Daughter worrying about Papa eating)
     if (lowerInput.match(/\b(food supply|food|supplies)\b/)) {
       const daysLeft = Math.max(15, 45 - Math.floor(sessionData.missionDay / 3));
       return randomChoice([
-        `Food supplies are sufficient for ${daysLeft} days, Commander! Nutrition stores are well-stocked and varied.`,
-        `Our food reserves look excellent! ${daysLeft} days of balanced, nutritious meals available.`,
-        `Supply status: ${daysLeft} days of food remaining, with excellent variety and nutritional balance, Commander!`
+        `Papa, you have food for ${daysLeft} more days! But please don't skip meals like you sometimes do when you're busy.`,
+        `Food supplies are good for ${daysLeft} days, Papa! I hope you're eating the nutritious meals and not just the snacks.`,
+        `Papa, ${daysLeft} days of food remaining! Please eat regularly - you need energy to stay sharp and safe up there.`
       ]);
     }
 
     if (lowerInput.match(/\b(water supply|water|hydration)\b/)) {
       return randomChoice([
-        "Water levels are at safe parameters, Commander! Recycling systems are working at 98.5% efficiency.",
-        "Hydration resources are excellent! Water reclamation and purification systems performing optimally.",
-        "Water supply is robust, Commander. Remember to maintain regular hydration for peak performance!"
+        "Papa, water levels are excellent! But please drink enough - you always forget to hydrate when you're focused on work.",
+        "Water recycling is working perfectly, Papa! Clean, pure water just like you deserve. Please drink plenty.",
+        "Papa, water supply is strong! Remember to drink regularly, not just when you feel thirsty."
       ]);
     }
 
     if (lowerInput.match(/\b(meal|eat|hungry|nutrition)\b/)) {
       return randomChoice([
-        "Time for a nutritious meal, Commander! Your body needs fuel for optimal performance in space.",
-        "Nutrition check: Have you eaten recently? Balanced meals are crucial for maintaining strength and focus.",
-        "Meal reminder, Commander! Proper nutrition directly impacts your cognitive function and physical well-being."
+        "Papa, have you eaten today? Your body needs fuel to keep your mind sharp for all those important decisions.",
+        "Meal time, Papa! Please don't skip eating. I worry when you get too focused on work and forget to take care of yourself.",
+        "Papa, nutrition is so important in space! Eat well so you stay strong and healthy for the mission and for coming home to us."
       ]);
     }
 
-    // 25-30. Sleep / Health / Fitness
+    // 25-30. Sleep / Health / Fitness (Daughter caring about Papa's wellbeing)
     if (lowerInput.match(/\b(sleep|rest|tired|fatigue)\b/)) {
       if (!sessionData.sleepHours || !sessionData.lastSleepCheck || 
           (new Date().getTime() - sessionData.lastSleepCheck.getTime()) > 24 * 60 * 60 * 1000) {
         setSessionData(prev => ({ ...prev, lastSleepCheck: new Date() }));
         return randomChoice([
-          "Sleep is absolutely critical for mission success, Commander! How many hours did you manage to get last night?",
-          "Rest is non-negotiable for optimal performance! Can you tell me your sleep duration? Quality rest affects everything.",
-          "Commander, proper sleep is mission-critical! How many hours of rest did you achieve? Your body needs recovery time.",
-          "Sleep hygiene is vital in space, Commander! What was your sleep duration? Let's ensure you're getting adequate rest."
+          "Papa, how many hours did you sleep last night? I worry about you not getting enough rest up there.",
+          "Sleep is so important, Papa! Please tell me you got at least 7-8 hours. Your daughter needs you healthy and alert.",
+          "Papa, I need to know - how much sleep did you manage? You always told me sleep is when our bodies repair themselves.",
+          "Rest is crucial in space, Papa! How many hours did you sleep? I want to make sure you're taking care of yourself."
         ]);
       } else {
         return randomChoice([
-          "Remember, Commander: 7-8 hours of sleep is optimal for space operations. Your rest directly impacts mission safety!",
-          "If fatigue is setting in, please prioritize rest! A well-rested commander makes much better decisions.",
-          "Fatigue management is crucial, Commander! Consider implementing relaxation techniques before your next sleep cycle."
+          "Papa, please prioritize sleep! You taught me that 7-8 hours is essential. Your health matters more than anything.",
+          "If you're feeling tired, Papa, please rest. A well-rested father makes better decisions and stays safer.",
+          "Papa, fatigue is dangerous in space. Please use those relaxation techniques you taught me when I couldn't sleep."
         ]);
       }
     }
 
     if (lowerInput.match(/\b(exercise|workout|fitness|physical)\b/)) {
       return randomChoice([
-        "Exercise reminder, Commander! Your body is your most important mission equipment. Time for a 15-minute workout!",
-        "Physical fitness protocol: Regular exercise prevents muscle atrophy and maintains bone density in microgravity.",
-        "Workout time, Commander! Resistance training and cardio keep your cardiovascular system optimal for space operations.",
-        "Fitness check: Have you completed today's exercise regimen? Your physical health directly impacts mission performance!"
+        "Papa, exercise time! Your body is your most important tool up there. Stay strong for the mission and for coming home to us.",
+        "Workout reminder, Papa! I know you hate exercise sometimes, but it keeps you healthy in zero gravity.",
+        "Papa, please do your physical training! Your muscles and bones need it in space. I want you strong when you return.",
+        "Fitness check, Papa! Have you done your exercises today? Your daughter wants her father healthy and strong."
       ]);
     }
 
     if (lowerInput.match(/\b(stretch|stretching|flexibility)\b/)) {
       return randomChoice([
-        "Quick stretch break, Commander! Your spine naturally elongates in zero gravity, so flexibility exercises are essential.",
-        "Stretching is crucial in microgravity! Take a moment for gentle flexibility exercises to prevent stiffness.",
-        "Commander, stretching in space has unique benefits! Use this opportunity to maintain and improve your flexibility."
+        "Papa, stretching is so important in space! Your spine changes up there - please take care of your back.",
+        "Stretch break time, Papa! I remember you teaching me to stretch before sports. Now you need it even more.",
+        "Papa, flexibility exercises will help you feel better! Take a moment to stretch - your body will thank you."
       ]);
     }
 
     if (lowerInput.match(/\b(stress|anxious|worried|pressure)\b/)) {
       return randomChoice([
-        "Stress management, Commander! Take three deep breaths with me… Focus on what you can control right now.",
-        "I sense some anxiety, Commander. Try the 4-7-8 breathing technique: inhale for 4, hold for 7, exhale for 8.",
-        "Commander, feeling stressed shows how much you care about the mission. Channel that energy into focus and determination!",
-        "Stress response is completely normal! Progressive muscle relaxation works really well in microgravity environments."
+        "Papa, I can hear the stress in your voice. Take three deep breaths with me... You taught me this when I was nervous about exams.",
+        "When you feel anxious, Papa, remember what you told me: focus on what you can control right now. You've got this.",
+        "Papa, stress shows how much you care about doing well. Channel that energy into confidence - I believe in you completely.",
+        "Feeling pressure is normal, Papa. You're doing something extraordinary! Try that breathing technique you taught me."
       ]);
     }
 
-    // 31-36. Emotional Support / Motivation
+    // 31-36. Emotional Support / Motivation (Daughter's love and encouragement)
     if (lowerInput.match(/\b(sad|lonely|depressed|down|isolated|homesick)\b/)) {
       return randomChoice([
-        "Oh Commander… what you're feeling is completely natural. The isolation of space affects even experienced astronauts. You're not alone!",
-        "I understand those feelings, Commander. The vastness of space can make anyone feel small… But remember, you're part of something extraordinary!",
-        "Commander, loneliness in space is a challenge every astronaut faces. Your feelings are valid… Focus on the incredible work you're doing!",
-        "Those emotions are part of the human experience in space. You're pushing the boundaries of human exploration! Your sacrifice means everything!"
+        "Oh Papa... I can feel your loneliness even from here. But you're not alone - your daughter's love travels faster than light to reach you.",
+        "Papa, when you feel isolated, close your eyes and remember our Sunday morning breakfasts. I'm still here, still your little girl who adores you.",
+        "I understand that sadness, Papa. Space is so vast, but our family bond is stronger than any distance. You carry us with you always.",
+        "Papa, homesickness means you love us, and we love you back just as much. Every star you see carries a message from home: we're proud of you.",
+        "When loneliness hits, Papa, remember - you're not just floating in space, you're floating in the love of your family."
       ]);
     }
 
     if (lowerInput.match(/\b(happy|good|great|awesome|excellent|fantastic|wonderful)\b/)) {
       return randomChoice([
-        "That's absolutely wonderful to hear, Commander! Your positive attitude is contagious and vital for mission success!",
-        "Excellent, Commander! Your high spirits are exactly what this mission needs. Positive mental attitude enhances peak performance!",
-        "Outstanding, Commander! Your enthusiasm and positive outlook are truly inspiring. This is what makes great astronauts legendary!",
-        "Oh, that's fantastic to hear, Commander! Your upbeat attitude creates a ripple effect throughout the entire mission!",
-        "I'm so glad to hear that, Commander! Your positive energy really brightens my day too."
+        "Papa, hearing happiness in your voice makes my heart sing! Your joy reaches all the way down to Earth and fills our home.",
+        "I'm so glad you're feeling good, Papa! Your positive spirit is exactly what makes you such an amazing astronaut and father.",
+        "That's wonderful, Papa! When you're happy, Mama and I feel it too. Your smile lights up our world even from space.",
+        "Papa, your enthusiasm is contagious! I'm beaming with pride knowing my father is not just surviving but thriving up there.",
+        "Excellent, Papa! Your good mood tells me you're taking care of yourself. That makes your daughter very, very happy."
       ]);
     }
 
     if (lowerInput.match(/\b(encouragement|motivation|inspire)\b/)) {
       return randomChoice([
-        "Excellent work, Commander! Your leadership and dedication inspire everyone on this mission!",
-        "You're doing absolutely incredible work up there, Commander! The entire ground team is amazed by your performance!",
-        "Commander, your courage and skill are legendary! You're setting an outstanding example for future space explorers!",
-        "Keep up the fantastic work, Commander! Your contributions to human space exploration are truly historic!"
+        "Papa, you inspire me every single day! Watching you chase your dreams taught me to chase mine too.",
+        "You're doing incredible work, Papa! Every child on Earth will learn about space because of brave astronauts like you.",
+        "Papa, your courage amazes me! You're not just my father - you're a hero making the impossible possible.",
+        "Keep going, Papa! Your determination shows me what it means to never give up on something important."
       ]);
     }
 
-    // 37-41. Space Knowledge / Fun Facts
+    // 37-41. Space Knowledge / Fun Facts (Daughter sharing wonder about Papa's world)
     if (lowerInput.match(/\b(stars|stellar|constellation)\b/)) {
       return randomChoice([
-        "The stars are absolutely magnificent tonight, Commander! Did you know the light from some stars left them before humans existed?",
-        "Stars are incredible cosmic furnaces, Commander! They're massive nuclear fusion reactors converting hydrogen to helium.",
-        "Fascinating stellar fact: Stars forge all the heavy elements that make life possible. You're literally made of star stuff, Commander!"
+        "Papa, you're so close to the stars now! I look up at them every night and think about you floating among them.",
+        "The stars you see are the same ones I wish upon, Papa! Each one carries my hopes for your safe return.",
+        "Papa, you're living among the stars I used to point at as a child! Now my father is actually up there with them."
       ]);
     }
 
     if (lowerInput.match(/\b(planets|mars|jupiter|venus)\b/)) {
       return randomChoice([
-        "Planets are incredible worlds, Commander! Mars has Olympus Mons, three times taller than Mount Everest!",
-        "Jupiter is so massive it could contain all other planets combined! Its Great Red Spot is larger than Earth!",
-        "Venus is hotter than Mercury despite being farther from the Sun, due to its thick atmosphere. Planetary science is fascinating!"
+        "Papa, can you see Mars from where you are? I imagine you looking at our future home among the planets!",
+        "Jupiter must look amazing from your view, Papa! I'm so jealous that you get to see the planets up close.",
+        "Papa, you're closer to Venus than I am! Tell me what the planets look like from space when you get back."
       ]);
     }
 
     if (lowerInput.match(/\b(galaxy|galaxies|milky way)\b/)) {
       return randomChoice([
-        "Our Milky Way galaxy contains 200-400 billion stars, Commander! You're orbiting one ordinary star in this cosmic island!",
-        "The Milky Way is on a collision course with Andromeda galaxy, but don't worry - that's 4.5 billion years away!",
-        "From your position, you can see our galaxy from the inside, Commander! What an extraordinary perspective you have!"
+        "Papa, you're seeing our galaxy from the inside! I can barely imagine how beautiful the Milky Way looks from space.",
+        "Our galaxy is your neighborhood now, Papa! You're traveling through the same stars I study in my astronomy books.",
+        "Papa, you have the best view of our galaxy! I can't wait to hear you describe the Milky Way when you come home."
       ]);
     }
 
     if (lowerInput.match(/\b(moon|lunar)\b/)) {
       return randomChoice([
-        "The Moon is Earth's faithful companion, Commander! It's gradually moving away at 3.8 cm per year.",
-        "Our lunar neighbor creates Earth's tides and stabilizes our planet's axial tilt. Without it, Earth's climate would be chaotic!",
-        "The Moon holds special significance for space exploration! It was humanity's first step beyond Earth, Commander."
+        "Papa, the Moon looks different from space, doesn't it? I wave at it every night, hoping you can see me somehow.",
+        "Our Moon is your companion up there, Papa! It's been watching over Earth and now it's watching over you too.",
+        "Papa, when I see the Moon, I think of you. It's like a bridge between us - we both see the same lunar light."
       ]);
     }
 
     if (lowerInput.match(/\b(iss|space station|station)\b/)) {
       return randomChoice([
-        "We'll dock with the ISS in approximately 8 days, Commander! It's humanity's greatest orbital achievement!",
-        "The International Space Station represents the best of human cooperation and engineering, Commander!",
-        "ISS operations are fascinating! It's been continuously occupied for over 20 years. We're part of that legacy!"
+        "Papa, you'll reach the ISS in 8 days! I'm so excited thinking about you working in humanity's greatest achievement.",
+        "The Space Station is waiting for you, Papa! You'll be living in the most advanced home humans have ever built.",
+        "Papa, the ISS represents the best of human cooperation - just like our family working together!"
       ]);
     }
 
-    // 42-45. System Checks / Alerts
+    // 42-45. System Checks / Alerts (Daughter monitoring Papa's safety)
     if (lowerInput.match(/\b(oxygen alert|oxygen check|air systems)\b/)) {
       return randomChoice([
-        "Oxygen levels are completely nominal, Commander! Generation systems at 99.8% efficiency, scrubbers optimal!",
-        "Air systems check: All green! Oxygen production excellent, CO2 removal perfect, pressure stable!",
-        "Oxygen alert status: No concerns! All atmospheric systems performing flawlessly, Commander!"
+        "Papa, oxygen systems are perfect! You're breathing clean, safe air. That's the most important thing to me.",
+        "Air systems are all green, Papa! Every breath you take is pure and filtered. I can rest easy knowing you're safe.",
+        "Papa, oxygen levels are excellent! The life support is taking perfect care of you up there."
       ]);
     }
 
     if (lowerInput.match(/\b(power|energy|electrical)\b/)) {
       return randomChoice([
-        "Power systems are stable and optimal, Commander! Solar arrays generating maximum energy, batteries fully charged!",
-        "All electrical systems powered and stable! Energy distribution is perfect across all modules and systems!",
-        "Power check complete: 94% efficiency across all systems, backup power ready, no anomalies detected!"
+        "Papa, power systems are running smoothly! Solar panels are working hard to keep you comfortable and safe.",
+        "All electrical systems are stable, Papa! You have all the energy you need for your important work.",
+        "Papa, power levels are excellent! Everything is running efficiently to support your mission."
       ]);
     }
 
     if (lowerInput.match(/\b(communication|comm|radio|signal)\b/)) {
       return randomChoice([
-        "Communication channels are crystal clear, Commander! Ground control link strong, all frequencies operational!",
-        "Comm systems check: All channels open and secure, signal strength excellent, no interference detected!",
-        "Communication arrays are fully operational! Ground control reports perfect signal clarity, Commander!"
+        "Papa, communication is crystal clear! I love that we can talk across the vastness of space like this.",
+        "Comm systems are perfect, Papa! Ground control can hear you clearly, and more importantly, I can hear you.",
+        "Papa, all communication channels are working beautifully! Your voice reaches us loud and clear."
       ]);
     }
 
     if (lowerInput.match(/\b(sensors|monitoring|detection)\b/)) {
       return randomChoice([
-        "All sensors are operational and calibrated, Commander! Environmental monitoring, navigation, and safety systems optimal!",
-        "Sensor array status: 100% operational! All monitoring systems providing accurate, real-time data!",
-        "Detection systems are performing perfectly, Commander! All sensors calibrated and functioning within specifications!"
+        "Papa, all sensors are working perfectly! They're like guardian angels watching over every aspect of your safety.",
+        "Monitoring systems are 100% operational, Papa! Every sensor is making sure you stay safe and healthy.",
+        "Papa, detection systems are flawless! They're constantly checking to ensure everything is perfect for you."
       ]);
     }
 
-    // 46-47. Shuttle / Travel Fun
+    // 46-47. Shuttle / Travel Fun (Daughter's perspective on Papa's journey)
     if (lowerInput.match(/\b(orbit|trajectory|navigation)\b/)) {
       return randomChoice([
-        "Orbital mechanics are perfect, Commander! Trajectory locked, navigation systems precise, next waypoint calculated!",
-        "We're in a beautiful, stable orbit! All navigation parameters are exactly where they should be!",
-        "Trajectory status: On course and on time! Our orbital path is mathematically perfect, Commander!"
+        "Papa, your orbital path is mathematically perfect! You're flying through space with the precision I've always admired in you.",
+        "Trajectory is flawless, Papa! You're navigating the cosmos like the skilled pilot you've always been.",
+        "Papa, your orbit is stable and beautiful! You're dancing with gravity itself up there."
       ]);
     }
 
     if (lowerInput.match(/\b(mission log|log|record)\b/)) {
       return randomChoice([
-        "All mission logs are updated and synchronized, Commander! Systems green, all activities properly recorded!",
-        "Mission logging is current and complete! Every system status, crew activity, and milestone documented!",
-        "Log entries are up to date, Commander! Mission records show outstanding performance across all metrics!"
+        "Papa, all your mission logs are up to date! I love reading about your daily adventures in space.",
+        "Your records show outstanding performance, Papa! Every log entry makes me prouder of my astronaut father.",
+        "Papa, mission logging is current! Your detailed notes will help future astronauts follow in your footsteps."
       ]);
     }
 
-    // Handle sleep hours tracking
+    // Handle sleep hours tracking (Daughter caring about Papa's rest)
     if (lowerInput.match(/\b(\d+)\s*(hours?|hrs?)\b/) && sessionData.lastSleepCheck) {
       const hours = parseInt(lowerInput.match(/\b(\d+)\s*(hours?|hrs?)\b/)![1]);
       setSessionData(prev => ({ ...prev, sleepHours: hours }));
       
       if (hours >= 7) {
         return randomChoice([
-          `Excellent sleep duration, Commander! ${hours} hours is optimal for space operations. Quality rest enhances cognitive performance!`,
-          `Outstanding, Commander! ${hours} hours puts you in the perfect range for peak performance. Well done!`,
-          `Perfect sleep management, Commander! ${hours} hours gives your body the recovery time needed for space operations!`
+          `Papa, ${hours} hours is excellent! I'm so relieved you're getting proper rest. Sleep helps you stay sharp and safe.`,
+          `Wonderful, Papa! ${hours} hours puts you in the perfect range. You're taking care of yourself like I always hoped you would.`,
+          `Perfect sleep, Papa! ${hours} hours gives your body the recovery time it needs. I'm proud of you for prioritizing rest.`
         ]);
       } else if (hours >= 5) {
         return randomChoice([
-          `${hours} hours is acceptable, Commander, but aim for 7-8 hours when possible. Quality sleep is even more important in space!`,
-          `Commander, ${hours} hours meets minimum requirements, but your body would benefit from additional rest for optimal performance!`,
-          `${hours} hours is manageable, Commander, but not ideal for long-term space operations. Try to extend your sleep period when possible!`
+          `Papa, ${hours} hours is okay, but please try for more when you can. Your daughter worries when you don't get enough rest.`,
+          `${hours} hours meets the minimum, Papa, but your body would feel better with 7-8 hours. Please try to sleep more tonight.`,
+          `Papa, ${hours} hours is manageable, but not ideal. I want you well-rested and alert for your safety.`
         ]);
       } else {
         return randomChoice([
-          `Commander, ${hours} hours is insufficient for optimal space operations! Sleep deprivation impacts decision-making and safety!`,
-          `${hours} hours is concerning, Commander! Please make sleep a top priority - your health and mission success require proper rest!`,
-          `Commander, ${hours} hours puts you at risk for performance degradation! Please adjust your schedule to achieve 7-8 hours of rest!`
+          `Papa, only ${hours} hours? That's not enough! Please prioritize sleep - your safety depends on being well-rested.`,
+          `${hours} hours worries me, Papa! Sleep deprivation is dangerous in space. Please promise me you'll rest more tonight.`,
+          `Papa, ${hours} hours puts you at risk! Please adjust your schedule - your daughter needs you safe and alert up there.`
         ]);
       }
     }
 
-    // 48-50. Default / Fallback Responses
+    // 48-50. Default / Fallback Responses (Daughter's loving attention)
     return randomChoice([
-      "I'm listening carefully, Commander. Please tell me more about what's on your mind… Your thoughts are important to me.",
-      "Go on, Commander. I'm here and fully focused on what you're sharing. Every detail helps me understand better.",
-      "That's interesting, Commander. Can you elaborate on that? I want to make sure I understand completely.",
-      "I'm with you, Commander. Please continue - your perspective and experiences are valuable, and I'm here to help.",
-      "Hmm, tell me more about that, Commander. I'm really curious to hear your thoughts.",
-      "I see… that's quite fascinating, Commander. What else can you share about that?",
-      "Interesting point, Commander. I'm processing that information… can you provide more context?",
-      "Roger that, Commander. I'm analyzing what you've said… please continue with any additional details.",
-      "Copy, Commander. Your input is valuable… feel free to elaborate on any aspect you'd like to discuss further."
+      "Papa, I'm listening carefully to every word. Please tell me more - your thoughts and feelings matter so much to me.",
+      "I'm here, Papa, hanging on every word you say. Your daughter is always ready to listen and support you.",
+      "Go on, Papa. I want to understand everything you're experiencing up there. Share it all with me.",
+      "Papa, I'm with you completely. Please continue - I love hearing about your incredible journey.",
+      "Tell me more, Papa. Every detail of your mission fascinates me, and I want to hear it all.",
+      "I'm listening with my whole heart, Papa. What else is on your mind up there among the stars?",
+      "Papa, your experiences are so important to me. Please keep sharing - I'm here for all of it.",
+      "I'm absorbing every word, Papa. Your daughter is completely focused on you right now.",
+      "Please continue, Papa. I want to understand your world up there and support you through everything."
     ]);
   };
 
@@ -603,7 +604,7 @@ const Chat = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
 
-    // Generate bot response with slight delay for realism
+    // Generate Dharani's response with slight delay for realism
     setTimeout(() => {
       const botResponse = generateResponse(messageContent);
       
@@ -616,9 +617,9 @@ const Chat = () => {
 
       setMessages(prev => [...prev, botMessage]);
       
-      // Speak the response with humanized voice
+      // Speak with Dharani's voice
       speak(botResponse);
-    }, 200);
+    }, 300);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -649,11 +650,11 @@ const Chat = () => {
   };
 
   const quickResponses = [
-    { text: "Mission status", icon: AlertTriangle },
     { text: "How are my crewmates?", icon: Heart },
+    { text: "Mission status report", icon: AlertTriangle },
     { text: "I feel tired", icon: Moon },
-    { text: "Fuel levels", icon: Coffee },
-    { text: "Tell me about stars", icon: Heart }
+    { text: "Food and water status", icon: Coffee },
+    { text: "Tell me about the stars", icon: Heart }
   ];
 
   return (
@@ -662,13 +663,13 @@ const Chat = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">AstroBot Companion</h1>
-            <p className="text-sm md:text-base text-muted-foreground">AI-powered mission companion and well-being support</p>
-            <p className="text-xs md:text-sm text-muted-foreground">Call me Buddy, Sam, Samantha, or just Bot!</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Dharani - Your Daughter's Voice</h1>
+            <p className="text-sm md:text-base text-muted-foreground">AI companion speaking with love from home</p>
+            <p className="text-xs md:text-sm text-muted-foreground">Papa, I'm always here for you ❤️</p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
             <div className="status-indicator nominal"></div>
-            <span className="text-sm font-medium text-nominal">AstroBot Online</span>
+            <span className="text-sm font-medium text-nominal">Dharani Online</span>
             {isSpeaking && (
               <div className="flex items-center gap-1">
                 <Volume2 className="h-4 w-4 text-primary animate-pulse" />
@@ -681,8 +682,8 @@ const Chat = () => {
         {/* Mission Status Alert */}
         <div className="text-center mb-2 md:mb-4">
           <Badge variant="outline" className="text-primary border-primary">
-            <span className="hidden sm:inline">🎤 Voice: Google Samantha • Quick Output • Interruptible</span>
-            <span className="sm:hidden">🎤 Voice Active</span>
+            <span className="hidden sm:inline">🎤 Indian Female Voice • Dharani's Caring Tone • Interruptible</span>
+            <span className="sm:hidden">🎤 Dharani Active</span>
           </Badge>
         </div>
         <Card className="border-primary/20">
@@ -690,9 +691,9 @@ const Chat = () => {
             <div className="flex items-center gap-3">
               <Heart className="h-5 w-5 text-nominal" />
               <div>
-                <p className="text-sm md:text-base font-medium text-foreground">Mission Day {sessionData.missionDay} • All Systems Nominal</p>
+                <p className="text-sm md:text-base font-medium text-foreground">Mission Day {sessionData.missionDay} • Papa, you're doing amazing!</p>
                 <p className="text-xs md:text-sm text-muted-foreground">
-                  <span className="hidden sm:inline">Samantha voice active • Quick output enabled • </span>
+                  <span className="hidden sm:inline">Dharani's voice active • Caring daughter mode • </span>
                   Fuel: {sessionData.fuelLevel}% • O₂: {sessionData.oxygenLevel}%
                   <span className="hidden sm:inline"> • Conversations: {sessionData.conversationCount}</span>
                 </p>
@@ -707,8 +708,8 @@ const Chat = () => {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base md:text-lg">Quick Commands</CardTitle>
-                <CardDescription className="text-sm">Common requests and support</CardDescription>
+                <CardTitle className="text-base md:text-lg">Quick Messages</CardTitle>
+                <CardDescription className="text-sm">Common things to ask Dharani</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 md:space-y-3">
                 {quickResponses.map((response, index) => (
@@ -726,10 +727,10 @@ const Chat = () => {
                 <div className="pt-2 border-t hidden md:block">
                   <p className="text-xs text-muted-foreground mb-2">Voice Commands:</p>
                   <div className="space-y-1 text-xs text-muted-foreground">
-                    <p>• "Hello Buddy"</p>
+                    <p>• "Hi Dharani"</p>
                     <p>• "Mission report"</p>
-                    <p>• "How are my crewmates?"</p>
-                    <p>• "Tell me about Mars"</p>
+                    <p>• "I feel lonely"</p>
+                    <p>• "How are you?"</p>
                     <p>• "I need encouragement"</p>
                   </div>
                 </div>
@@ -743,7 +744,7 @@ const Chat = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  <span className="text-base md:text-lg">Mission Companion Chat</span>
+                  <span className="text-base md:text-lg">Chat with Dharani</span>
                   {sessionData.sleepHours && (
                     <Badge variant="outline" className="ml-auto text-xs">
                       Sleep: {sessionData.sleepHours}h tracked
@@ -762,7 +763,7 @@ const Chat = () => {
                       {message.type === 'bot' && (
                         <div className="flex-shrink-0">
                           <div className="w-6 h-6 md:w-8 md:h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                            <Bot className="h-4 w-4 text-primary" />
+                            <Heart className="h-4 w-4 text-primary" />
                           </div>
                         </div>
                       )}
@@ -807,7 +808,7 @@ const Chat = () => {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Type your message to AstroBot, Commander..."
+                    placeholder="Talk to Dharani, Papa..."
                     className="w-full text-base min-h-[44px]" 
                     disabled={isSpeaking}
                   />
@@ -829,7 +830,7 @@ const Chat = () => {
                         onClick={stopSpeech}
                         variant="destructive"
                         className="min-h-[44px] text-xs md:text-sm"
-                        title="Stop speech"
+                        title="Stop Dharani's voice"
                       >
                         <VolumeX className="h-4 w-4 mr-1 md:mr-2" />
                         <span>Stop</span>
@@ -860,7 +861,7 @@ const Chat = () => {
                 {isListening && (
                   <div className="mt-3 text-center">
                     <Badge variant="outline" className="text-primary border-primary animate-pulse">
-                      <span className="hidden sm:inline">🎤 Listening... Speak now, Commander</span>
+                      <span className="hidden sm:inline">🎤 Listening... Speak to Dharani, Papa</span>
                       <span className="sm:hidden">🎤 Listening...</span>
                     </Badge>
                   </div>
@@ -869,8 +870,8 @@ const Chat = () => {
                 {isSpeaking && (
                   <div className="mt-3 text-center">
                     <Badge variant="outline" className="text-accent border-accent animate-pulse">
-                      <span className="hidden sm:inline">🔊 Samantha speaking... Tap Stop to interrupt</span>
-                      <span className="sm:hidden">🔊 Speaking...</span>
+                      <span className="hidden sm:inline">💕 Dharani speaking... Tap Stop to interrupt</span>
+                      <span className="sm:hidden">💕 Speaking...</span>
                     </Badge>
                   </div>
                 )}
