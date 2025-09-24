@@ -147,6 +147,49 @@
   }
 }
 
+/* Mobile-optimized chat styles */
+@media (max-width: 768px) {
+  .chat-container {
+    height: calc(100vh - 200px);
+    max-height: 600px;
+  }
+  
+  .chat-input-section {
+    padding: 1rem;
+    background: hsl(var(--card));
+    border-top: 1px solid hsl(var(--border));
+    position: sticky;
+    bottom: 0;
+  }
+  
+  .chat-input-section input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px;
+    min-height: 44px; /* Touch target size */
+  }
+  
+  .chat-input-section button {
+    min-height: 44px; /* Touch target size */
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .chat-messages {
+    padding: 1rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Enhanced button styles for mobile */
+.mobile-chat-button {
+  @apply min-h-[44px] px-4 py-2 text-sm font-medium rounded-md transition-all duration-200;
+}
+
+.mobile-chat-button:active {
+  @apply scale-95;
+}
+
 @layer base {
   * {
     @apply border-border;

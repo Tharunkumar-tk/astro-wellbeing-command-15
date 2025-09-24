@@ -14,7 +14,8 @@ import {
   Moon,
   Mic,
   MicOff,
-  Volume2
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 
 interface Message {
@@ -50,6 +51,7 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechEnabled, setSpeechEnabled] = useState(true);
   const [sessionData, setSessionData] = useState<SessionData>({
     sleepHours: null,
     stressLevel: null,
@@ -89,6 +91,39 @@ const Chat = () => {
     }
   }, []);
 
+  // Get Google Samantha voice or fallback to best female voice
+  const getSamanthaVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Priority order for female voices
+    const preferredVoices = [
+      'Samantha',
+      'Google UK English Female', 
+      'Google US English Female',
+      'Microsoft Zira',
+      'Microsoft Hazel',
+      'Alex',
+      'Karen',
+      'Victoria'
+    ];
+    
+    // Find the best match
+    for (const preferred of preferredVoices) {
+      const voice = voices.find(v => v.name.includes(preferred));
+      if (voice) return voice;
+    }
+    
+    // Fallback to any female voice
+    const femaleVoice = voices.find(v => 
+      v.name.toLowerCase().includes('female') || 
+      v.name.toLowerCase().includes('woman') ||
+      ['Samantha', 'Karen', 'Victoria', 'Zira', 'Hazel'].some(name => 
+        v.name.includes(name)
+      )
+    );
+    
+    return femaleVoice || voices[0];
+  };
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -102,46 +137,33 @@ const Chat = () => {
     return options[Math.floor(Math.random() * options.length)];
   };
 
-  // Humanized Text-to-Speech function
+  // Enhanced Text-to-Speech with Samantha voice and quick output
   const speak = (text: string) => {
-    if ('speechSynthesis' in window) {
+    if ('speechSynthesis' in window && speechEnabled) {
       // Stop any ongoing speech
       window.speechSynthesis.cancel();
       
       setIsSpeaking(true);
       
-      // Add thinking delay for more natural interaction
-      const thinkingDelay = Math.random() * 500 + 400; // 400-900ms variation
+      // Quick output - minimal delay
+      const thinkingDelay = Math.random() * 200 + 100; // 100-300ms variation
       setTimeout(() => {
-        // Add natural pauses with ellipses
-        const naturalText = text.replace(/([.?!])/g, "$1…");
+        // Clean text for quick reading
+        const cleanText = text.replace(/([.?!])/g, "$1 ");
         
-        const utterance = new SpeechSynthesisUtterance(naturalText);
+        const utterance = new SpeechSynthesisUtterance(cleanText);
         
-        // Choose mature, natural voices
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoices = [
-          'Google UK English Male', 
-          'Alex', 
-          'Daniel', 
-          'Google US English',
-          'Samantha',
-          'Microsoft David',
-          'Microsoft Mark'
-        ];
-        
-        const selectedVoice = voices.find(voice => 
-          preferredVoices.some(preferred => voice.name.includes(preferred))
-        ) || voices.find(voice => voice.lang.startsWith('en-')) || voices[0];
+        // Use Samantha voice
+        const selectedVoice = getSamanthaVoice();
         
         if (selectedVoice) {
           utterance.voice = selectedVoice;
         }
         
-        // Humanized pitch and rate with slight variation
-        utterance.pitch = 1.05 + (Math.random() * 0.1); // 1.05-1.15 variation
-        utterance.rate = 0.95 + (Math.random() * 0.1);  // 0.95-1.05 variation
-        utterance.volume = 0.85;
+        // Quick reading settings
+        utterance.pitch = 1.05; // Natural female pitch
+        utterance.rate = 1.2;   // Fast reading
+        utterance.volume = 0.9;
 
         utterance.onend = () => {
           setIsSpeaking(false);
@@ -154,6 +176,12 @@ const Chat = () => {
         window.speechSynthesis.speak(utterance);
       }, thinkingDelay);
     }
+  };
+
+  // Stop speech function
+  const stopSpeech = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
   };
 
   // Enhanced rule-based response system with 50+ rules
@@ -651,6 +679,11 @@ const Chat = () => {
         </div>
 
         {/* Mission Status Alert */}
+        <div className="text-center mb-4">
+          <Badge variant="outline" className="text-primary border-primary">
+            🎤 Voice: Google Samantha • Quick Output • Interruptible
+          </Badge>
+        </div>
         <Card className="border-primary/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -658,7 +691,7 @@ const Chat = () => {
               <div>
                 <p className="font-medium text-foreground">Mission Day {sessionData.missionDay} • All Systems Nominal</p>
                 <p className="text-sm text-muted-foreground">
-                  Voice input enabled • Humanized speech active • Fuel: {sessionData.fuelLevel}% • O₂: {sessionData.oxygenLevel}% • Conversations: {sessionData.conversationCount}
+                  Samantha voice active • Quick output enabled • Fuel: {sessionData.fuelLevel}% • O₂: {sessionData.oxygenLevel}% • Conversations: {sessionData.conversationCount}
                 </p>
               </div>
             </div>
@@ -766,37 +799,73 @@ const Chat = () => {
                 </div>
 
                 {/* Input Area */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Type your message to AstroBot, Commander..."
-                    className="flex-1"
+                    className="flex-1 text-base" 
                     disabled={isSpeaking}
                   />
-                  <Button 
-                    onClick={toggleListening}
-                    variant={isListening ? "destructive" : "outline"}
-                    size="icon"
-                    disabled={isSpeaking}
-                    title={isListening ? "Stop listening" : "Start voice input"}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                  <Button 
-                    onClick={() => handleSendMessage()}
-                    disabled={!inputMessage.trim() || isSpeaking}
-                    size="icon"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
+                  
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <Button 
+                      onClick={toggleListening}
+                      variant={isListening ? "destructive" : "outline"}
+                      className="flex-1 sm:flex-none"
+                      disabled={isSpeaking}
+                      title={isListening ? "Stop listening" : "Start voice input"}
+                    >
+                      {isListening ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+                      <span className="sm:hidden">{isListening ? "Stop" : "Voice"}</span>
+                    </Button>
+                    
+                    {isSpeaking && (
+                      <Button 
+                        onClick={stopSpeech}
+                        variant="destructive"
+                        className="flex-1 sm:flex-none"
+                        title="Stop speech"
+                      >
+                        <VolumeX className="h-4 w-4 mr-2" />
+                        <span className="sm:hidden">Stop</span>
+                      </Button>
+                    )}
+                    
+                    <Button 
+                      onClick={() => setSpeechEnabled(!speechEnabled)}
+                      variant={speechEnabled ? "outline" : "secondary"}
+                      className="flex-1 sm:flex-none"
+                      title={speechEnabled ? "Disable speech" : "Enable speech"}
+                    >
+                      <Volume2 className="h-4 w-4 mr-2" />
+                      <span className="sm:hidden">{speechEnabled ? "On" : "Off"}</span>
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => handleSendMessage()}
+                      disabled={!inputMessage.trim() || isSpeaking}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      <span className="sm:hidden">Send</span>
+                    </Button>
+                  </div>
                 </div>
                 
                 {isListening && (
-                  <div className="mt-2 text-center">
+                  <div className="mt-3 text-center">
                     <Badge variant="outline" className="text-primary border-primary animate-pulse">
                       🎤 Listening... Speak now, Commander
+                    </Badge>
+                  </div>
+                )}
+                
+                {isSpeaking && (
+                  <div className="mt-3 text-center">
+                    <Badge variant="outline" className="text-accent border-accent animate-pulse">
+                      🔊 Samantha speaking... Tap Stop to interrupt
                     </Badge>
                   </div>
                 )}
