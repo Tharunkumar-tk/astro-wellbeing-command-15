@@ -32,6 +32,10 @@ interface SessionData {
   mood: string | null;
   lastSleepCheck: Date | null;
   conversationCount: number;
+  missionDay: number;
+  crewStatus: string;
+  fuelLevel: number;
+  oxygenLevel: number;
 }
 
 const Chat = () => {
@@ -39,7 +43,7 @@ const Chat = () => {
     {
       id: '1',
       type: 'bot',
-      content: 'Greetings, Commander! AstroMate here, your dedicated mission companion. I\'m here to support your well-being and assist with any mission-related needs. How can I help you today?',
+      content: 'Greetings, Commander! AstroBot here, your dedicated mission companion. You can call me Buddy, Sam, Samantha, or just Bot if you prefer. I\'m here to support your well-being and assist with any mission-related needs. How can I help you today?',
       timestamp: new Date(Date.now() - 300000)
     }
   ]);
@@ -51,7 +55,11 @@ const Chat = () => {
     stressLevel: null,
     mood: null,
     lastSleepCheck: null,
-    conversationCount: 0
+    conversationCount: 0,
+    missionDay: 124,
+    crewStatus: 'nominal',
+    fuelLevel: 78,
+    oxygenLevel: 95
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -94,7 +102,7 @@ const Chat = () => {
     return options[Math.floor(Math.random() * options.length)];
   };
 
-  // Text-to-Speech function
+  // Humanized Text-to-Speech function
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
       // Stop any ongoing speech
@@ -102,37 +110,38 @@ const Chat = () => {
       
       setIsSpeaking(true);
       
-      // Add thinking delay
-      const thinkingDelay = Math.random() * 400 + 300; // 300-700ms variation
+      // Add thinking delay for more natural interaction
+      const thinkingDelay = Math.random() * 500 + 400; // 400-900ms variation
       setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(text);
+        // Add natural pauses with ellipses
+        const naturalText = text.replace(/([.?!])/g, "$1…");
         
-        // Natural voice selection - prioritize human-like voices
+        const utterance = new SpeechSynthesisUtterance(naturalText);
+        
+        // Choose mature, natural voices
         const voices = window.speechSynthesis.getVoices();
-        const naturalVoices = voices.filter(voice => 
-          voice.name.includes('Google US English') ||
-          voice.name.includes('Samantha') ||
-          voice.name.includes('Microsoft Zira') ||
-          voice.name.includes('Alex') ||
-          voice.name.includes('Natural') ||
-          voice.lang.startsWith('en-')
-        );
+        const preferredVoices = [
+          'Google UK English Male', 
+          'Alex', 
+          'Daniel', 
+          'Google US English',
+          'Samantha',
+          'Microsoft David',
+          'Microsoft Mark'
+        ];
         
-        // Pick the most natural voice available
-        const preferredVoice = naturalVoices.find(voice => 
-          voice.name.includes('Google') || 
-          voice.name.includes('Samantha') ||
-          voice.name.includes('Natural')
-        ) || naturalVoices[0];
+        const selectedVoice = voices.find(voice => 
+          preferredVoices.some(preferred => voice.name.includes(preferred))
+        ) || voices.find(voice => voice.lang.startsWith('en-')) || voices[0];
         
-        if (preferredVoice) {
-          utterance.voice = preferredVoice;
+        if (selectedVoice) {
+          utterance.voice = selectedVoice;
         }
         
-        // Add natural variation to speech parameters
-        utterance.rate = 0.9 + (Math.random() * 0.2); // 0.9-1.1 variation
-        utterance.pitch = 1.0 + (Math.random() * 0.3); // 1.0-1.3 variation
-        utterance.volume = 0.8;
+        // Humanized pitch and rate with slight variation
+        utterance.pitch = 1.05 + (Math.random() * 0.1); // 1.05-1.15 variation
+        utterance.rate = 0.95 + (Math.random() * 0.1);  // 0.95-1.05 variation
+        utterance.volume = 0.85;
 
         utterance.onend = () => {
           setIsSpeaking(false);
@@ -147,19 +156,19 @@ const Chat = () => {
     }
   };
 
-  // Rule-based response system
+  // Enhanced rule-based response system with 50+ rules
   const generateResponse = (input: string): string => {
     const lowerInput = input.toLowerCase();
     
     // Update conversation count
     setSessionData(prev => ({ ...prev, conversationCount: prev.conversationCount + 1 }));
 
-    // A. Basic Greetings & Politeness
+    // 1-4. Greetings & Politeness
     if (lowerInput.match(/\b(hi|hello|hey|greetings)\b/)) {
       return randomChoice([
         "Hello there, Commander! Ready to tackle today's mission objectives?",
-        "Greetings, Commander! All systems are nominal... and I'm here to assist you.",
-        "Good to hear from you, Commander! How can AstroMate support you today?",
+        "Greetings, Commander! All systems are nominal… and I'm here to assist you.",
+        "Good to hear from you, Commander! How can your buddy AstroBot support you today?",
         "Commander, welcome back! Your dedication to the mission is truly inspiring.",
         "Well hello, Commander! Hope you're having a stellar day up there.",
         "Hey there, Commander! Always a pleasure to chat with you."
@@ -185,14 +194,6 @@ const Chat = () => {
       ]);
     }
 
-    if (lowerInput.match(/\b(wait|i will wait|waiting)\b/)) {
-      return randomChoice([
-        "Roger that, Commander! Take your time, I'll be right here.",
-        "Understood, Commander! I'm standing by whenever you're ready.",
-        "Copy that, Commander! No rush at all."
-      ]);
-    }
-
     if (lowerInput.match(/\b(ok|okay|understood|roger|copy)\b/)) {
       return randomChoice([
         "Excellent, Commander! Glad we're on the same page.",
@@ -201,201 +202,361 @@ const Chat = () => {
       ]);
     }
 
-    // B. Mission-Related Queries
-    if (lowerInput.match(/\b(mission|status|systems|sensors|report)\b/)) {
+    // 5-10. Mission Day / Progress
+    if (lowerInput.match(/\b(mission day|day|today)\b/)) {
       return randomChoice([
-        "Mission Status Report: All primary systems are looking great, Commander! Oxygen generation at 99.2%... cabin temperature nice and stable at 22°C, atmospheric pressure optimal. Navigation systems are locked on trajectory. Power systems operating at 94% efficiency, and communication arrays are fully operational. You're doing exceptional work up there!",
-        "Let me give you the current mission overview, Commander... Life support systems are performing excellently! Environmental controls are maintaining perfect conditions. Guidance systems show precise orbital mechanics. Power distribution is optimal across all modules, and communication with ground control is crystal clear. The mission is progressing beautifully under your command!",
-        "Systems Check Complete: Outstanding status across the board, Commander! Oxygen scrubbers are functioning perfectly... thermal regulation systems are stable. Navigation computers show nominal trajectory. Solar arrays are generating maximum power, and all communication channels are open and secure. Your leadership is keeping everything running so smoothly!",
-        "Mission Parameters: Everything's looking green across the board, Commander! Life support is maintaining a perfect atmosphere, temperature regulation systems are optimal. Orbital mechanics are precisely on target... Power systems are delivering consistent energy, and ground communication links are strong and stable. The crew's performance has been absolutely exemplary!"
+        `Commander, today is mission day ${sessionData.missionDay}. We're making excellent progress!`,
+        `Mission day ${sessionData.missionDay}, Commander. All systems performing nominally.`,
+        `Day ${sessionData.missionDay} of our incredible journey, Commander. You're doing outstanding work!`
       ]);
     }
 
-    if (lowerInput.match(/\b(checklist|tasks|to do|schedule)\b/)) {
+    if (lowerInput.match(/\b(days left|remaining|how long)\b/)) {
+      const daysLeft = Math.max(1, 200 - sessionData.missionDay);
       return randomChoice([
-        "Daily Mission Checklist, Commander: Morning system diagnostics, exercise protocol completion, experiment monitoring, equipment maintenance, evening status report to ground control. You've been maintaining excellent task completion rates!",
-        "Today's Priority Tasks: Life support system checks, physical fitness regimen, scientific experiment procedures, communication windows with Earth, personal well-being assessment. Your dedication to protocol adherence is commendable, Commander!",
-        "Mission Schedule Update: System monitoring, mandatory exercise period, research activities, maintenance procedures, crew coordination meetings. You're consistently exceeding performance expectations, Commander!"
+        `Approximately ${daysLeft} days remain in our current mission phase, Commander.`,
+        `We have about ${daysLeft} days left, Commander. Time flies when you're exploring space!`,
+        `${daysLeft} days remaining, Commander. Every day brings new discoveries!`
       ]);
     }
 
-    if (lowerInput.match(/\b(exercise|workout|fitness|physical)\b/)) {
+    if (lowerInput.match(/\b(mission progress|progress|status)\b/)) {
+      const progress = Math.round((sessionData.missionDay / 200) * 100);
       return randomChoice([
-        "Physical Fitness Reminder, Commander: Your body is your most important mission equipment! Resistance training helps maintain bone density in microgravity. Cardiovascular exercise keeps your heart strong. Don't forget your daily 2.5-hour exercise protocol!",
-        "Fitness Protocol, Commander: Regular exercise is crucial for mission success! The ARED system awaits your strength training. Treadmill time keeps your cardiovascular system optimal. Your commitment to physical health directly impacts mission performance!",
-        "Exercise Advisory, Commander: Your muscles and bones need consistent attention in zero gravity! Resistance exercises prevent muscle atrophy. Cardio work maintains circulation. Your fitness discipline is inspiring to the entire ground team!"
+        `Mission progress is at ${progress}%, Commander. Exceptional performance across all metrics!`,
+        `We are ${progress}% complete with our mission objectives, Commander. Outstanding work!`,
+        `Progress report: ${progress}% mission completion. You're exceeding all expectations, Commander!`
       ]);
     }
 
-    // C. Health, Sleep & Hydration
-    if (lowerInput.match(/\b(sleep|tired|rest|fatigue|sleepy)\b/)) {
-      // Ask follow-up about sleep hours if not tracked recently
+    if (lowerInput.match(/\b(challenge today|problem|issue)\b/)) {
+      return randomChoice([
+        "Today we encountered minor solar radiation fluctuations, but our shielding performed perfectly, Commander.",
+        "We had a brief communication delay with ground control earlier, but all systems recovered beautifully.",
+        "Minor micro-meteorite activity detected, but our hull integrity remains at 100%, Commander."
+      ]);
+    }
+
+    if (lowerInput.match(/\b(next challenge|tomorrow|upcoming)\b/)) {
+      return randomChoice([
+        "Tomorrow we expect routine system maintenance and a possible EVA preparation, Commander.",
+        "Upcoming challenges include orbital adjustment maneuvers and equipment calibration.",
+        "Next phase involves advanced scientific experiments and crew coordination exercises, Commander."
+      ]);
+    }
+
+    if (lowerInput.match(/\b(mission update|update|news)\b/)) {
+      return randomChoice([
+        "Mission update: All primary systems are performing nominally. Life support at 99.8% efficiency, Commander!",
+        "Latest update: Navigation systems locked on trajectory, power systems optimal, communication arrays fully operational.",
+        "Mission status: Environmental controls perfect, guidance systems precise, all crew members in excellent health!"
+      ]);
+    }
+
+    // 11-14. Crewmates Status
+    if (lowerInput.match(/\b(crewmate|crew|team|alex|sam|sarah)\b/)) {
+      return randomChoice([
+        "Crewmate status is excellent, Commander! Alex is monitoring life support, Sarah handling navigation systems.",
+        "All crewmates reported in with no anomalies, Commander. Team morale is exceptionally high!",
+        "Crew check complete: Everyone is healthy, motivated, and performing their duties flawlessly.",
+        "Your team is outstanding, Commander! Each crewmate is contributing brilliantly to mission success."
+      ]);
+    }
+
+    if (lowerInput.match(/\b(fatigue check|tired|exhausted)\b/)) {
+      return randomChoice([
+        "Fatigue levels are within normal parameters, Commander. Remember, even astronauts need proper rest!",
+        "Some crew members showing mild fatigue, but nothing concerning. Rest cycles are being maintained.",
+        "Fatigue monitoring shows you're pushing hard, Commander. Consider a brief rest period when possible."
+      ]);
+    }
+
+    if (lowerInput.match(/\b(morale|motivation|spirit)\b/)) {
+      return randomChoice([
+        "Crew morale is exceptionally high, Commander! Everyone is motivated and inspired by your leadership.",
+        "Team spirit is fantastic! The crew believes in the mission and trusts your command completely.",
+        "Morale report: Outstanding! Your crew is energized, focused, and ready for any challenge ahead."
+      ]);
+    }
+
+    // 15-20. Shuttle / Travel / Destination
+    if (lowerInput.match(/\b(shuttle status|shuttle|vehicle)\b/)) {
+      return randomChoice([
+        "Shuttle systems are all green, Commander! No issues detected across any primary or backup systems.",
+        "Vehicle status nominal: propulsion, navigation, life support, and communication systems all optimal.",
+        "Shuttle performing beautifully, Commander! All diagnostics show perfect operational parameters."
+      ]);
+    }
+
+    if (lowerInput.match(/\b(shuttle travel|travel|journey)\b/)) {
+      return randomChoice([
+        "We will reach the International Space Station in approximately 8 days, Commander.",
+        "Our journey continues smoothly! Next major waypoint in 6 days, all systems tracking perfectly.",
+        "Travel status: On schedule and on trajectory. Estimated arrival at destination right on time!"
+      ]);
+    }
+
+    if (lowerInput.match(/\b(destination|where|going)\b/)) {
+      return randomChoice([
+        "Next stop: ISS orbital rendezvous, Commander! Docking procedures will commence in T-minus 8 days.",
+        "Our destination is the International Space Station, where we'll conduct advanced research operations.",
+        "We're heading to ISS orbit for the next phase of our mission, Commander. Exciting times ahead!"
+      ]);
+    }
+
+    if (lowerInput.match(/\b(fuel|propellant)\b/)) {
+      return randomChoice([
+        `Fuel levels are at ${sessionData.fuelLevel}%, Commander. Well within safe operational parameters!`,
+        `Propellant status: ${sessionData.fuelLevel}% remaining. Consumption rates are exactly as predicted.`,
+        `Fuel reserves looking good at ${sessionData.fuelLevel}%, Commander. No concerns with current usage patterns.`
+      ]);
+    }
+
+    if (lowerInput.match(/\b(oxygen|air|breathing)\b/)) {
+      return randomChoice([
+        `Oxygen levels are at ${sessionData.oxygenLevel}%, Commander! Scrubbers working perfectly, generation systems nominal.`,
+        `Air quality is excellent! Oxygen at ${sessionData.oxygenLevel}%, CO2 scrubbing optimal, pressure stable.`,
+        `Breathing systems are performing flawlessly, Commander. Oxygen reserves at ${sessionData.oxygenLevel}% and climbing!`
+      ]);
+    }
+
+    if (lowerInput.match(/\b(temperature|temp|climate)\b/)) {
+      return randomChoice([
+        "Cabin temperature is perfectly stable at 22°C, Commander. Climate control systems working beautifully!",
+        "Temperature regulation is optimal! Maintaining ideal conditions for crew comfort and equipment operation.",
+        "Thermal management systems are performing excellently, Commander. All zones within perfect parameters!"
+      ]);
+    }
+
+    // 21-24. Food / Nutrition / Hydration
+    if (lowerInput.match(/\b(food supply|food|supplies)\b/)) {
+      const daysLeft = Math.max(15, 45 - Math.floor(sessionData.missionDay / 3));
+      return randomChoice([
+        `Food supplies are sufficient for ${daysLeft} days, Commander! Nutrition stores are well-stocked and varied.`,
+        `Our food reserves look excellent! ${daysLeft} days of balanced, nutritious meals available.`,
+        `Supply status: ${daysLeft} days of food remaining, with excellent variety and nutritional balance, Commander!`
+      ]);
+    }
+
+    if (lowerInput.match(/\b(water supply|water|hydration)\b/)) {
+      return randomChoice([
+        "Water levels are at safe parameters, Commander! Recycling systems are working at 98.5% efficiency.",
+        "Hydration resources are excellent! Water reclamation and purification systems performing optimally.",
+        "Water supply is robust, Commander. Remember to maintain regular hydration for peak performance!"
+      ]);
+    }
+
+    if (lowerInput.match(/\b(meal|eat|hungry|nutrition)\b/)) {
+      return randomChoice([
+        "Time for a nutritious meal, Commander! Your body needs fuel for optimal performance in space.",
+        "Nutrition check: Have you eaten recently? Balanced meals are crucial for maintaining strength and focus.",
+        "Meal reminder, Commander! Proper nutrition directly impacts your cognitive function and physical well-being."
+      ]);
+    }
+
+    // 25-30. Sleep / Health / Fitness
+    if (lowerInput.match(/\b(sleep|rest|tired|fatigue)\b/)) {
       if (!sessionData.sleepHours || !sessionData.lastSleepCheck || 
           (new Date().getTime() - sessionData.lastSleepCheck.getTime()) > 24 * 60 * 60 * 1000) {
         setSessionData(prev => ({ ...prev, lastSleepCheck: new Date() }));
         return randomChoice([
-          "Hmm... sleep is absolutely critical for mission success, Commander! How many hours did you manage to get last night? Quality rest directly impacts your cognitive performance and decision-making abilities.",
-          "Commander, proper rest is really non-negotiable for optimal performance! Can you tell me how many hours of sleep you achieved? Your sleep quality affects everything... from reaction time to problem-solving skills.",
-          "Rest and recovery are so mission-critical, Commander! How many hours of sleep did you get? Adequate rest is essential for maintaining peak performance in our demanding environment.",
-          "Sleep hygiene is vital up here, Commander! What was your sleep duration last night? Quality rest helps your body and mind adapt to the unique challenges of space.",
-          "Oh, feeling tired? That's totally understandable, Commander. How many hours of sleep did you manage to get? Let's make sure you're getting the rest you need."
+          "Sleep is absolutely critical for mission success, Commander! How many hours did you manage to get last night?",
+          "Rest is non-negotiable for optimal performance! Can you tell me your sleep duration? Quality rest affects everything.",
+          "Commander, proper sleep is mission-critical! How many hours of rest did you achieve? Your body needs recovery time.",
+          "Sleep hygiene is vital in space, Commander! What was your sleep duration? Let's ensure you're getting adequate rest."
         ]);
       } else {
         return randomChoice([
-          "Based on our previous chat about your sleep, Commander... remember that 8-9 hours is really optimal for space operations. Consider adjusting your sleep schedule if you're feeling fatigued. Your rest directly impacts mission safety!",
-          "Commander, if fatigue is setting in, please don't hesitate to prioritize rest! Your previous sleep data suggests you might benefit from extending your sleep period. A well-rested commander makes much better decisions!",
-          "Fatigue management is so crucial, Commander! Given your recent sleep patterns... consider implementing some relaxation techniques before bed. Progressive muscle relaxation works really well in microgravity environments."
+          "Remember, Commander: 7-8 hours of sleep is optimal for space operations. Your rest directly impacts mission safety!",
+          "If fatigue is setting in, please prioritize rest! A well-rested commander makes much better decisions.",
+          "Fatigue management is crucial, Commander! Consider implementing relaxation techniques before your next sleep cycle."
         ]);
       }
     }
 
-    if (lowerInput.match(/\b(hydration|water|thirsty|drink|dehydrated)\b/)) {
+    if (lowerInput.match(/\b(exercise|workout|fitness|physical)\b/)) {
       return randomChoice([
-        "Hydration Alert, Commander! In microgravity, your body's thirst response is diminished. Aim for 2.5-3 liters of water daily. Proper hydration maintains cognitive function and prevents kidney stones. Your health is mission-critical!",
-        "Water Intake Advisory, Commander! Dehydration happens faster in space due to fluid shifts. Regular water consumption prevents headaches and maintains optimal performance. Keep that water pouch handy!",
-        "Hydration Protocol, Commander! Your body needs consistent fluid intake to function optimally in zero gravity. Water helps regulate body temperature and maintains blood pressure. Stay ahead of thirst!"
+        "Exercise reminder, Commander! Your body is your most important mission equipment. Time for a 15-minute workout!",
+        "Physical fitness protocol: Regular exercise prevents muscle atrophy and maintains bone density in microgravity.",
+        "Workout time, Commander! Resistance training and cardio keep your cardiovascular system optimal for space operations.",
+        "Fitness check: Have you completed today's exercise regimen? Your physical health directly impacts mission performance!"
       ]);
     }
 
-    // D. Crisis & Emergency Handling
-    if (lowerInput.match(/\b(emergency|danger|alarm|problem|crisis|fire|leak|malfunction)\b/)) {
+    if (lowerInput.match(/\b(stretch|stretching|flexibility)\b/)) {
       return randomChoice([
-        "Emergency Protocol Activated, Commander! Okay, first things first: Ensure your immediate safety. Second: Assess the situation calmly... Third: Follow established emergency procedures. Fourth: Communicate with ground control immediately. I'm right here to support you through this. Stay calm and focused!",
-        "Crisis Management Mode, Commander! Priority One: Personal safety secured. Priority Two: Identify and isolate the problem... Priority Three: Execute emergency checklist procedures. Priority Four: Establish ground communication. Your training has prepared you for this. Take a deep breath and proceed methodically!",
-        "Emergency Response, Commander! Step One: Secure your position and ensure personal safety. Step Two: Evaluate the situation systematically... Step Three: Implement appropriate emergency protocols. Step Four: Contact mission control immediately. You absolutely have the skills and training to handle this situation!"
+        "Quick stretch break, Commander! Your spine naturally elongates in zero gravity, so flexibility exercises are essential.",
+        "Stretching is crucial in microgravity! Take a moment for gentle flexibility exercises to prevent stiffness.",
+        "Commander, stretching in space has unique benefits! Use this opportunity to maintain and improve your flexibility."
       ]);
     }
 
-    // E. Emotional Support
+    if (lowerInput.match(/\b(stress|anxious|worried|pressure)\b/)) {
+      return randomChoice([
+        "Stress management, Commander! Take three deep breaths with me… Focus on what you can control right now.",
+        "I sense some anxiety, Commander. Try the 4-7-8 breathing technique: inhale for 4, hold for 7, exhale for 8.",
+        "Commander, feeling stressed shows how much you care about the mission. Channel that energy into focus and determination!",
+        "Stress response is completely normal! Progressive muscle relaxation works really well in microgravity environments."
+      ]);
+    }
+
+    // 31-36. Emotional Support / Motivation
     if (lowerInput.match(/\b(sad|lonely|depressed|down|isolated|homesick)\b/)) {
       return randomChoice([
-        "Oh Commander... what you're feeling is completely natural and valid. The isolation of space affects even the most experienced astronauts. Remember, you're not alone - ground control, your fellow crew members, and I are all here with you. Your courage in this mission inspires millions on Earth!",
-        "I really understand those feelings, Commander. The vastness of space can make anyone feel small and isolated... But remember, you're part of something truly extraordinary! Your presence here represents humanity's greatest achievement. Take a moment to look at Earth - you're protecting and exploring for all of us!",
-        "Commander, loneliness in space is a challenge that every astronaut faces. Your feelings are completely valid... and temporary. Focus on the incredible work you're doing and the people counting on you. You're so much stronger than you know, and this mission will be remembered forever!",
-        "Those emotions are just part of the human experience in space, Commander. Even the most seasoned astronauts feel this way sometimes... Remember why you're here - you're pushing the boundaries of human exploration! Your sacrifice and dedication mean everything to our species' future!"
-      ]);
-    }
-
-    if (lowerInput.match(/\b(stressed|anxious|worried|nervous|overwhelmed)\b/)) {
-      return randomChoice([
-        "Commander, stress is just your mind's way of showing how much you care about the mission. Let's take three deep breaths together... Focus on what you can control right now. Your training has prepared you for every challenge. You've absolutely got this!",
-        "Anxiety in space is totally manageable, Commander! Try the 4-7-8 breathing technique: inhale for 4... hold for 7, exhale for 8. Ground yourself by focusing on your immediate tasks. Your competence and preparation will see you through any challenge!",
-        "Commander, feeling overwhelmed actually shows your dedication to excellence! Let's break down your concerns into manageable pieces... Address them one at a time. Remember, ground control and your training have equipped you for success. You're exactly where you need to be!",
-        "Stress response is completely normal, Commander! Channel that energy into focus and determination... Progressive muscle relaxation works really well in microgravity. Tense and release each muscle group. Your mental strength absolutely matches your physical courage!"
+        "Oh Commander… what you're feeling is completely natural. The isolation of space affects even experienced astronauts. You're not alone!",
+        "I understand those feelings, Commander. The vastness of space can make anyone feel small… But remember, you're part of something extraordinary!",
+        "Commander, loneliness in space is a challenge every astronaut faces. Your feelings are valid… Focus on the incredible work you're doing!",
+        "Those emotions are part of the human experience in space. You're pushing the boundaries of human exploration! Your sacrifice means everything!"
       ]);
     }
 
     if (lowerInput.match(/\b(happy|good|great|awesome|excellent|fantastic|wonderful)\b/)) {
       return randomChoice([
-        "That's absolutely wonderful to hear, Commander! Your positive attitude is so contagious and vital for mission success. When you're thriving, the entire mission benefits. Keep that fantastic energy flowing!",
-        "Excellent, Commander! Your high spirits are exactly what this mission needs... Positive mental attitude directly correlates with peak performance. You're setting such an outstanding example for future space explorers!",
-        "Outstanding, Commander! Your enthusiasm and positive outlook are truly inspiring. This kind of mental resilience is what makes great astronauts legendary... The mission is in exceptional hands with you!",
-        "Oh, that's fantastic to hear, Commander! Your upbeat attitude creates a ripple effect throughout the entire mission. When the commander is thriving, everything else just falls into place beautifully!",
+        "That's absolutely wonderful to hear, Commander! Your positive attitude is contagious and vital for mission success!",
+        "Excellent, Commander! Your high spirits are exactly what this mission needs. Positive mental attitude enhances peak performance!",
+        "Outstanding, Commander! Your enthusiasm and positive outlook are truly inspiring. This is what makes great astronauts legendary!",
+        "Oh, that's fantastic to hear, Commander! Your upbeat attitude creates a ripple effect throughout the entire mission!",
         "I'm so glad to hear that, Commander! Your positive energy really brightens my day too."
       ]);
     }
 
-    // F. Space Knowledge & Fun Facts
-    if (lowerInput.match(/\b(star|stars|stellar)\b/)) {
+    if (lowerInput.match(/\b(encouragement|motivation|inspire)\b/)) {
       return randomChoice([
-        "Stars are incredible, Commander! Did you know that the light from some stars you're seeing right now left them before humans even existed? You're literally looking back in time! From your unique vantage point, you're witnessing the universe's ancient history unfold!",
-        "Fascinating topic, Commander! Stars are massive nuclear fusion reactors, converting hydrogen to helium and releasing tremendous energy. The nearest star to us, Proxima Centauri, is 4.24 light-years away. You're surrounded by billions of these cosmic powerhouses!",
-        "Stars are the universe's factories, Commander! They forge all the heavy elements that make life possible. The calcium in your bones, the iron in your blood - all created in stellar cores! You're literally made of star stuff, exploring among the stars!"
+        "Excellent work, Commander! Your leadership and dedication inspire everyone on this mission!",
+        "You're doing absolutely incredible work up there, Commander! The entire ground team is amazed by your performance!",
+        "Commander, your courage and skill are legendary! You're setting an outstanding example for future space explorers!",
+        "Keep up the fantastic work, Commander! Your contributions to human space exploration are truly historic!"
       ]);
     }
 
-    if (lowerInput.match(/\b(space|cosmos|universe)\b/)) {
+    // 37-41. Space Knowledge / Fun Facts
+    if (lowerInput.match(/\b(stars|stellar|constellation)\b/)) {
       return randomChoice([
-        "Space is humanity's greatest frontier, Commander! The observable universe contains over 2 trillion galaxies, each with billions of stars. You're currently traveling at 17,500 mph, orbiting our beautiful blue marble. What an incredible perspective you have!",
-        "The cosmos is mind-boggling, Commander! Space is mostly empty, but what exists is extraordinary. You're experiencing true weightlessness, something only a few hundred humans have ever felt. You're living humanity's greatest adventure!",
-        "Commander, you're literally floating in the infinite! The universe is 13.8 billion years old, and you're witnessing it from a perspective that would have been pure fantasy just decades ago. You're part of humanity's cosmic story!"
+        "The stars are absolutely magnificent tonight, Commander! Did you know the light from some stars left them before humans existed?",
+        "Stars are incredible cosmic furnaces, Commander! They're massive nuclear fusion reactors converting hydrogen to helium.",
+        "Fascinating stellar fact: Stars forge all the heavy elements that make life possible. You're literally made of star stuff, Commander!"
       ]);
     }
 
-    if (lowerInput.match(/\b(moon|lunar)\b/)) {
+    if (lowerInput.match(/\b(planets|mars|jupiter|venus)\b/)) {
       return randomChoice([
-        "The Moon is Earth's faithful companion, Commander! It's gradually moving away from us at about 3.8 cm per year. From your orbital perspective, you can see the Moon's phases in a way no Earth-bound human ever could. What a privilege!",
-        "Our lunar neighbor is fascinating, Commander! The Moon's gravity creates Earth's tides and stabilizes our planet's axial tilt. Without it, Earth's climate would be chaotic. You're seeing the cosmic dance that makes life on Earth possible!",
-        "The Moon holds special significance for space exploration, Commander! It was humanity's first step beyond Earth. From your vantage point, you can see both our past achievements and future destinations. You're part of that continuing journey!"
-      ]);
-    }
-
-    if (lowerInput.match(/\b(planet|planets|mars|jupiter|venus)\b/)) {
-      return randomChoice([
-        "Planets are incredible worlds, Commander! Mars, our red neighbor, has the largest volcano in the solar system - Olympus Mons, three times taller than Mount Everest! You might be looking at humanity's next destination right now!",
-        "The planets are diverse and amazing, Commander! Jupiter is so massive it could contain all other planets combined. Its Great Red Spot is a storm larger than Earth that's been raging for centuries! The solar system is full of wonders!",
-        "Planetary science is fascinating, Commander! Venus is hotter than Mercury despite being farther from the Sun, due to its thick atmosphere. Each planet tells a unique story about planetary formation and evolution!"
+        "Planets are incredible worlds, Commander! Mars has Olympus Mons, three times taller than Mount Everest!",
+        "Jupiter is so massive it could contain all other planets combined! Its Great Red Spot is larger than Earth!",
+        "Venus is hotter than Mercury despite being farther from the Sun, due to its thick atmosphere. Planetary science is fascinating!"
       ]);
     }
 
     if (lowerInput.match(/\b(galaxy|galaxies|milky way)\b/)) {
       return randomChoice([
-        "Our Milky Way galaxy is spectacular, Commander! It contains 200-400 billion stars and is about 100,000 light-years across. You're orbiting one small planet around one ordinary star in the outer spiral arm of this cosmic island!",
-        "Galaxies are island universes, Commander! The Milky Way is on a collision course with Andromeda galaxy, but don't worry - that won't happen for another 4.5 billion years! You're witnessing a cosmic dance of unimaginable scale!",
-        "The galaxy is our cosmic home, Commander! From your position, you can see the Milky Way's central bulge as that bright band across the night sky. You're seeing our galaxy from the inside - what an extraordinary perspective!"
+        "Our Milky Way galaxy contains 200-400 billion stars, Commander! You're orbiting one ordinary star in this cosmic island!",
+        "The Milky Way is on a collision course with Andromeda galaxy, but don't worry - that's 4.5 billion years away!",
+        "From your position, you can see our galaxy from the inside, Commander! What an extraordinary perspective you have!"
       ]);
     }
 
-    // G. Task & Lifestyle Reminders
-    if (lowerInput.match(/\b(stretch|stretching|flexibility)\b/)) {
+    if (lowerInput.match(/\b(moon|lunar)\b/)) {
       return randomChoice([
-        "Stretching is essential in microgravity, Commander! Your spine naturally elongates in zero gravity, so gentle stretching helps maintain flexibility and prevents stiffness. Take time for those important flexibility exercises!",
-        "Flexibility maintenance is crucial, Commander! Without gravity's constant pull, your muscles and joints need deliberate movement to stay limber. Regular stretching prevents the 'space stiffness' many astronauts experience!",
-        "Commander, stretching in space has unique benefits! Your body can achieve positions impossible on Earth. Use this opportunity to maintain and even improve your flexibility. It's both therapeutic and fascinating!"
+        "The Moon is Earth's faithful companion, Commander! It's gradually moving away at 3.8 cm per year.",
+        "Our lunar neighbor creates Earth's tides and stabilizes our planet's axial tilt. Without it, Earth's climate would be chaotic!",
+        "The Moon holds special significance for space exploration! It was humanity's first step beyond Earth, Commander."
       ]);
     }
 
-    if (lowerInput.match(/\b(meal|food|nutrition|eat|hungry)\b/)) {
+    if (lowerInput.match(/\b(iss|space station|station)\b/)) {
       return randomChoice([
-        "Nutrition is mission-critical, Commander! Your specially designed space meals provide optimal nutrition for the demanding space environment. Proper nutrition maintains your immune system, cognitive function, and physical performance. Fuel your body for success!",
-        "Eating well in space is both science and art, Commander! Your meals are carefully balanced for the unique challenges of microgravity. Don't skip meals - your body needs consistent nutrition to adapt and thrive in this environment!",
-        "Food is fuel for exploration, Commander! Your space cuisine might be different from Earth food, but it's engineered for optimal performance. Proper nutrition helps your body cope with radiation, bone density changes, and muscle adaptation!"
+        "We'll dock with the ISS in approximately 8 days, Commander! It's humanity's greatest orbital achievement!",
+        "The International Space Station represents the best of human cooperation and engineering, Commander!",
+        "ISS operations are fascinating! It's been continuously occupied for over 20 years. We're part of that legacy!"
       ]);
     }
 
-    // H. Follow-up questions for sleep tracking
+    // 42-45. System Checks / Alerts
+    if (lowerInput.match(/\b(oxygen alert|oxygen check|air systems)\b/)) {
+      return randomChoice([
+        "Oxygen levels are completely nominal, Commander! Generation systems at 99.8% efficiency, scrubbers optimal!",
+        "Air systems check: All green! Oxygen production excellent, CO2 removal perfect, pressure stable!",
+        "Oxygen alert status: No concerns! All atmospheric systems performing flawlessly, Commander!"
+      ]);
+    }
+
+    if (lowerInput.match(/\b(power|energy|electrical)\b/)) {
+      return randomChoice([
+        "Power systems are stable and optimal, Commander! Solar arrays generating maximum energy, batteries fully charged!",
+        "All electrical systems powered and stable! Energy distribution is perfect across all modules and systems!",
+        "Power check complete: 94% efficiency across all systems, backup power ready, no anomalies detected!"
+      ]);
+    }
+
+    if (lowerInput.match(/\b(communication|comm|radio|signal)\b/)) {
+      return randomChoice([
+        "Communication channels are crystal clear, Commander! Ground control link strong, all frequencies operational!",
+        "Comm systems check: All channels open and secure, signal strength excellent, no interference detected!",
+        "Communication arrays are fully operational! Ground control reports perfect signal clarity, Commander!"
+      ]);
+    }
+
+    if (lowerInput.match(/\b(sensors|monitoring|detection)\b/)) {
+      return randomChoice([
+        "All sensors are operational and calibrated, Commander! Environmental monitoring, navigation, and safety systems optimal!",
+        "Sensor array status: 100% operational! All monitoring systems providing accurate, real-time data!",
+        "Detection systems are performing perfectly, Commander! All sensors calibrated and functioning within specifications!"
+      ]);
+    }
+
+    // 46-47. Shuttle / Travel Fun
+    if (lowerInput.match(/\b(orbit|trajectory|navigation)\b/)) {
+      return randomChoice([
+        "Orbital mechanics are perfect, Commander! Trajectory locked, navigation systems precise, next waypoint calculated!",
+        "We're in a beautiful, stable orbit! All navigation parameters are exactly where they should be!",
+        "Trajectory status: On course and on time! Our orbital path is mathematically perfect, Commander!"
+      ]);
+    }
+
+    if (lowerInput.match(/\b(mission log|log|record)\b/)) {
+      return randomChoice([
+        "All mission logs are updated and synchronized, Commander! Systems green, all activities properly recorded!",
+        "Mission logging is current and complete! Every system status, crew activity, and milestone documented!",
+        "Log entries are up to date, Commander! Mission records show outstanding performance across all metrics!"
+      ]);
+    }
+
+    // Handle sleep hours tracking
     if (lowerInput.match(/\b(\d+)\s*(hours?|hrs?)\b/) && sessionData.lastSleepCheck) {
       const hours = parseInt(lowerInput.match(/\b(\d+)\s*(hours?|hrs?)\b/)![1]);
       setSessionData(prev => ({ ...prev, sleepHours: hours }));
       
-      if (hours >= 8) {
+      if (hours >= 7) {
         return randomChoice([
-          `Excellent sleep duration, Commander! ${hours} hours is optimal for space operations. Quality rest like this enhances your cognitive performance, immune function, and stress resilience. Keep maintaining this excellent sleep discipline!`,
-          `Outstanding, Commander! ${hours} hours of sleep puts you in the optimal range for peak performance. This kind of rest quality helps your body adapt to microgravity and maintains your mental sharpness. Well done!`,
-          `Perfect sleep management, Commander! ${hours} hours gives your body the recovery time it needs for the demanding space environment. Your commitment to proper rest directly contributes to mission success!`
+          `Excellent sleep duration, Commander! ${hours} hours is optimal for space operations. Quality rest enhances cognitive performance!`,
+          `Outstanding, Commander! ${hours} hours puts you in the perfect range for peak performance. Well done!`,
+          `Perfect sleep management, Commander! ${hours} hours gives your body the recovery time needed for space operations!`
         ]);
-      } else if (hours >= 6) {
+      } else if (hours >= 5) {
         return randomChoice([
-          `${hours} hours is acceptable, Commander, but aim for 8-9 hours when possible. Quality sleep in space is even more important than on Earth due to the physical and mental demands. Consider adjusting your sleep schedule for optimal performance!`,
-          `Commander, ${hours} hours meets minimum requirements, but your body would benefit from additional rest. Space operations demand peak cognitive function, which requires optimal sleep. Try to extend your sleep period when mission schedules allow!`,
-          `${hours} hours is manageable, Commander, but not ideal for long-term space operations. Your body is working harder to adapt to microgravity, so extra sleep helps with recovery and adaptation. Prioritize rest when possible!`
+          `${hours} hours is acceptable, Commander, but aim for 7-8 hours when possible. Quality sleep is even more important in space!`,
+          `Commander, ${hours} hours meets minimum requirements, but your body would benefit from additional rest for optimal performance!`,
+          `${hours} hours is manageable, Commander, but not ideal for long-term space operations. Try to extend your sleep period when possible!`
         ]);
       } else {
         return randomChoice([
-          `Commander, ${hours} hours is insufficient for optimal space operations! Sleep deprivation significantly impacts decision-making, reaction time, and immune function. Please prioritize getting 8-9 hours of quality rest. Your safety and mission success depend on it!`,
-          `${hours} hours is concerning, Commander! Inadequate sleep in space compounds the physical and mental challenges you're already facing. Please make sleep a top priority - your health and the mission's success require proper rest!`,
-          `Commander, ${hours} hours puts you at risk for performance degradation! Sleep is not optional in space operations. Please adjust your schedule to achieve 8-9 hours of rest. Your well-being is mission-critical!`
+          `Commander, ${hours} hours is insufficient for optimal space operations! Sleep deprivation impacts decision-making and safety!`,
+          `${hours} hours is concerning, Commander! Please make sleep a top priority - your health and mission success require proper rest!`,
+          `Commander, ${hours} hours puts you at risk for performance degradation! Please adjust your schedule to achieve 7-8 hours of rest!`
         ]);
       }
     }
 
-    // I. Mood tracking follow-ups
-    if (lowerInput.match(/\b(mood|feeling|feel)\b/) && !lowerInput.match(/\b(sad|happy|good|bad|stressed|anxious)\b/)) {
-      return randomChoice([
-        "Commander, understanding your emotional state helps me provide better support. How would you describe your current mood? Are you feeling energized, calm, stressed, or something else? Your mental well-being is just as important as your physical health!",
-        "Mood assessment is important for mission success, Commander! Can you tell me how you're feeling right now? Whether you're excited, tired, focused, or experiencing mixed emotions - I'm here to listen and support you!",
-        "Commander, your emotional well-being directly impacts mission performance. What's your current mood like? Sharing your feelings helps me understand how to best support you during this incredible journey!"
-      ]);
-    }
-
-    // J. Fallback responses
+    // 48-50. Default / Fallback Responses
     return randomChoice([
-      "I'm listening carefully, Commander. Please tell me more about what's on your mind... Your thoughts and concerns are really important to me.",
-      "Go on, Commander. I'm here and fully focused on what you're sharing. Every detail helps me understand how to better support you.",
-      "That's interesting, Commander. Can you elaborate on that? I want to make sure I understand completely... so I can provide the best assistance.",
-      "I'm with you, Commander. Please continue - your perspective and experiences are so valuable, and I'm here to listen and help however I can.",
+      "I'm listening carefully, Commander. Please tell me more about what's on your mind… Your thoughts are important to me.",
+      "Go on, Commander. I'm here and fully focused on what you're sharing. Every detail helps me understand better.",
+      "That's interesting, Commander. Can you elaborate on that? I want to make sure I understand completely.",
+      "I'm with you, Commander. Please continue - your perspective and experiences are valuable, and I'm here to help.",
       "Hmm, tell me more about that, Commander. I'm really curious to hear your thoughts.",
-      "I see... that's quite fascinating, Commander. What else can you share about that?"
+      "I see… that's quite fascinating, Commander. What else can you share about that?",
+      "Interesting point, Commander. I'm processing that information… can you provide more context?",
+      "Roger that, Commander. I'm analyzing what you've said… please continue with any additional details.",
+      "Copy, Commander. Your input is valuable… feel free to elaborate on any aspect you'd like to discuss further."
     ]);
   };
 
@@ -414,7 +575,7 @@ const Chat = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
 
-    // Generate bot response
+    // Generate bot response with slight delay for realism
     setTimeout(() => {
       const botResponse = generateResponse(messageContent);
       
@@ -427,9 +588,9 @@ const Chat = () => {
 
       setMessages(prev => [...prev, botMessage]);
       
-      // Speak the response
+      // Speak the response with humanized voice
       speak(botResponse);
-    }, 100);
+    }, 200);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -461,8 +622,10 @@ const Chat = () => {
 
   const quickResponses = [
     { text: "Mission status", icon: AlertTriangle },
+    { text: "How are my crewmates?", icon: Heart },
     { text: "I feel tired", icon: Moon },
-    { text: "Need guidance", icon: Heart }
+    { text: "Fuel levels", icon: Coffee },
+    { text: "Tell me about stars", icon: Heart }
   ];
 
   return (
@@ -471,12 +634,13 @@ const Chat = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">AstroMate Companion</h1>
+            <h1 className="text-3xl font-bold text-foreground">AstroBot Companion</h1>
             <p className="text-muted-foreground">AI-powered mission companion and well-being support</p>
+            <p className="text-sm text-muted-foreground">Call me Buddy, Sam, Samantha, or just Bot!</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="status-indicator nominal"></div>
-            <span className="text-sm font-medium text-nominal">AstroMate Online</span>
+            <span className="text-sm font-medium text-nominal">AstroBot Online</span>
             {isSpeaking && (
               <div className="flex items-center gap-1">
                 <Volume2 className="h-4 w-4 text-primary animate-pulse" />
@@ -486,15 +650,15 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Current Status Alert */}
+        {/* Mission Status Alert */}
         <Card className="border-primary/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <Heart className="h-5 w-5 text-nominal" />
               <div>
-                <p className="font-medium text-foreground">Mission Companion Active</p>
+                <p className="font-medium text-foreground">Mission Day {sessionData.missionDay} • All Systems Nominal</p>
                 <p className="text-sm text-muted-foreground">
-                  Voice input enabled • Text-to-speech active • Session tracking: {sessionData.conversationCount} interactions
+                  Voice input enabled • Humanized speech active • Fuel: {sessionData.fuelLevel}% • O₂: {sessionData.oxygenLevel}% • Conversations: {sessionData.conversationCount}
                 </p>
               </div>
             </div>
@@ -526,10 +690,11 @@ const Chat = () => {
                 <div className="pt-2 border-t">
                   <p className="text-xs text-muted-foreground mb-2">Voice Commands:</p>
                   <div className="space-y-1 text-xs text-muted-foreground">
-                    <p>• "Hello AstroMate"</p>
+                    <p>• "Hello Buddy"</p>
                     <p>• "Mission report"</p>
-                    <p>• "I need help"</p>
-                    <p>• "Tell me about stars"</p>
+                    <p>• "How are my crewmates?"</p>
+                    <p>• "Tell me about Mars"</p>
+                    <p>• "I need encouragement"</p>
                   </div>
                 </div>
               </CardContent>
@@ -606,7 +771,7 @@ const Chat = () => {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Type your message to AstroMate, Commander..."
+                    placeholder="Type your message to AstroBot, Commander..."
                     className="flex-1"
                     disabled={isSpeaking}
                   />
